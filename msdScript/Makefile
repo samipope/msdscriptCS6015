@@ -11,7 +11,7 @@ INCLUDES =
 
 # Define source (.cpp) and header (.hpp) files
 SRCS = main.cpp cmdline.cpp Expr.cpp catch.cpp
-HEADERS = cmdline.h Expr.h catch.h
+HEADERS = cmdline.h Expr.h
 
 # Define the target executable
 TARGET = msdscript
