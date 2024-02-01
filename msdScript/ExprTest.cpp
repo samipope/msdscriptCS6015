@@ -3,10 +3,11 @@
 //
 
 
-#include "catch.h"
+#include "ExprTest.h"
 #include "Expr.h"
 #include "cmdline.h"
 #include <stdexcept>
+#include <sstream>
 
 TEST_CASE("Num equals tests", "[Num]") {
 Num num1(5);
@@ -294,6 +295,12 @@ TEST_CASE("subst tests", "All Expressions") {
 }
 
 
+//TEST_CASE("to_string tests", "all expressions"){
+//    CHECK( (new Var("x"))->to_string() == "x" );
+//    CHECK( (new Add(new Num(1), new Num(2)))->to_string() == "(1+2)" );
+//    CHECK( (new Mult(new Num(3), new Num(4)))->to_string() == "(3*4)" );
+//}
+
 
 
 TEST_CASE("Nabil's given tests"){
@@ -321,5 +328,18 @@ TEST_CASE("Nabil's given tests"){
                       ->equals(new Add(new Var("y"), new Num(7))));
     }
 
+//    SECTION("Given Tests for Assignment 4"){
+//        CHECK( (new Num(10))->to_string() == "10" );
+//
+//        // Create a stringstream to capture the output of pretty_print
+//        std::stringstream ss1;
+//        (new Add(new Num(1), new Mult(new Num(2), new Num(3))))->Expr::pretty_print(ss1);
+//        CHECK( ss1.str() == "1 + 2 * 3" );
+//
+//        std::stringstream ss2;
+//        (new Mult(new Num(1), new Add(new Num(2), new Num(3))))->Expr::pretty_print(ss2);
+//        CHECK( ss2.str() == "1 * (2 + 3)" );
+//    }
+    }
 
-}
+

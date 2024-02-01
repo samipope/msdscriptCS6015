@@ -10,7 +10,7 @@ CXXFLAGS = -std=c++11 -Wall
 INCLUDES =
 
 # Define source (.cpp) and header (.hpp) files
-SRCS = main.cpp cmdline.cpp Expr.cpp catch.cpp
+SRCS = main.cpp cmdline.cpp Expr.cpp ExprTest.cpp
 HEADERS = cmdline.h Expr.h
 
 # Define the target executable
@@ -21,11 +21,15 @@ all: $(TARGET)
 
 $(TARGET): $(SRCS) $(HEADERS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(TARGET) $(SRCS)
+	
+test:
+	./msdscript --test
 
 # Define clean command
 .PHONY: clean
 clean:
 	rm -f $(TARGET) *.o
+	
 
 # Define a phony target to avoid problems with files named "all" or "clean"
 .PHONY: all clean
