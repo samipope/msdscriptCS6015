@@ -22,7 +22,7 @@ all: $(TARGET)
 $(TARGET): $(SRCS) $(HEADERS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(TARGET) $(SRCS)
 	
-test:
+test: msdscript
 	./msdscript --test
 
 # Define clean command
