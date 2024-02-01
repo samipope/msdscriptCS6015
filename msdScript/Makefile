@@ -1,7 +1,7 @@
 # Define the compiler to use
 CXX = g++
 
-# Compiler flags
+# Compiler flags add
 # -std=c++11 : Compile for C++11 standard
 # -Wall : Turn on most compiler warnings
 CXXFLAGS = -std=c++11 -Wall
