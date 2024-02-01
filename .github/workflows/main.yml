@@ -1,9 +1,10 @@
 name: MSD
 on:
   push:
+  
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
     - name: Checkout v1
       uses: actions/checkout@v1
