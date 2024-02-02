@@ -6,7 +6,7 @@
 #include <cstring> // For strcmp
 #define CATCH_CONFIG_RUNNER
 #include "cmdline.h"
-#include "ExprTest.h"
+#include "catch.h"
 
  void useArgs(int argc, const char *argv[]) {
             static bool testAlreadyPressed = false;

@@ -9,4 +9,4 @@ add_executable(CS6015Project main.cpp
         Expr.cpp
         Expr.h
         ExprTest.cpp
-        ExprTest.h)
+        catch.h)

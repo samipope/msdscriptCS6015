@@ -4,6 +4,7 @@
 #define CS6015PROJECT_EXPR_H
 #include <string>
 #include <stdexcept>
+#include <sstream>
 
 ////add
 
@@ -20,11 +21,20 @@ public:
     virtual int interp() =0;
     virtual bool hasVariable()=0;
     virtual Expr* subst(std::string stringInput, Expr* e)=0;
-//    virtual void print(std::ostream& stream)=0;
-//    virtual void pretty_print(std::ostream& ot, precedence_t prec)=0;
-//    void pretty_print(std::ostream &ot){
-//        pretty_print(ot,prec_none);
- //   }
+
+    std::string to_string() {
+        std::stringstream st("");
+        this->print(st);
+        return st.str();
+    }
+
+
+
+    virtual void print(std::ostream& stream)=0;
+    virtual void pretty_print(std::ostream& ot, precedence_t prec)=0;
+    void pretty_print_at(std::ostream &ot){
+        this-> pretty_print(ot,prec_none);
+    }
 };
 
 class Num : public Expr {
@@ -35,10 +45,9 @@ public:
     int interp() override;
     bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
-//    void print(std::ostream& stream) override;
-//    std::string to_string();
-//protected:
-//    void pretty_print(std::ostream& ot, precedence_t prec) override;
+    void print(std::ostream& stream) override;
+protected:
+    void pretty_print(std::ostream& ot, precedence_t prec) override;
 };
 
 class Add : public Expr {
@@ -51,10 +60,9 @@ public:
     int interp() override;
     bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
-//    void print(std::ostream& stream) override;
-//    std::string to_string();
-//protected:
-//    void pretty_print(std::ostream& ot, precedence_t prec) override;
+    void print(std::ostream& stream) override;
+protected:
+    void pretty_print(std::ostream& ot, precedence_t prec) override;
 
 };
 
@@ -68,10 +76,9 @@ public:
     int interp() override;
     bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
-//    void print(std::ostream& stream) override;
-//    std::string to_string();
-//protected:
-//    void pretty_print(std::ostream& ot, precedence_t prec) override;
+    void print(std::ostream& stream) override;
+protected:
+    void pretty_print(std::ostream& ot, precedence_t prec) override;
 
 };
 
@@ -83,10 +90,9 @@ public:
     int interp() override;
     bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
-//    void print(std::ostream& stream) override;
-//    std::string to_string();
-//protected:
-//    void pretty_print(std::ostream& ot, precedence_t prec) override;
+    void print(std::ostream& stream) override;
+protected:
+    void pretty_print(std::ostream& ot, precedence_t prec) override;
 
 };
 

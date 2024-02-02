@@ -119,88 +119,63 @@ Expr* Var::subst(std::string stringInput, Expr *e) {
 
 //-------------------------print-------------------------------------------
 // do not tests print, tests toString
-//
-//void Num::print(std::ostream &stream) {
-//    stream<<std::to_string(val);
-//}
-//
-//void Add::print(std::ostream &stream) {
-//    stream << "(";
-//    lhs->print(stream);
-//    stream << "+";
-//    rhs->print(stream);
-//    stream << ")";
-//}
-//
-//void Mult::print(std::ostream &stream) {
-//    stream << "(";
-//    lhs->print(stream);
-//    stream << "*";
-//    rhs->print(stream);
-//    stream << ")";
-//}
-//
-//void Var::print(std::ostream &stream) {
-//   stream <<var;
-//}
-//
-////------------------------toString-------------------------
-//
-//std::string Num::to_string() {
-//    std::stringstream st("");
-//    this->print(st);
-//    return st.str();
-//}
-//
-//std::string Add::to_string() {
-//    std::stringstream st;
-//    this->print(st);
-//    return st.str();
-//}
-//
-//std::string Mult::to_string() {
-//    std::stringstream st;
-//    this->print(st);
-//    return st.str();
-//}
-//
-//std::string Var::to_string(){
-//    std::stringstream st("");
-//    this->print(st);
-//    return st.str();
-//}
-//
-////---------------------pretty_print----------------------
-//
-//void Num::pretty_print(std::ostream &ot, precedence_t prec) {
-//    ot << val;
-//}
-//
-//void Add::pretty_print(std::ostream &ot, precedence_t prec) {
-//    bool needParens = prec > prec_add;
-//    if (needParens) ot << "(";
-//
-//    lhs->pretty_print(ot, prec_add);
-//    ot << " + ";
-//    rhs->pretty_print(ot, prec_add);
-//
-//    if (needParens) ot << ")";
-//}
-//
-//void Mult::pretty_print(std::ostream &ot, precedence_t prec) {
-//    bool needParens = prec > prec_mult;
-//    if (needParens) ot << "(";
-//
-//    lhs->pretty_print(ot, prec_mult);
-//    ot << " * ";
-//    rhs->pretty_print(ot, prec_none); // Associating to the right
-//
-//    if (needParens) ot << ")";
-//}
-//
-//void Var::pretty_print(std::ostream &ot, precedence_t prec) {
-//    ot << var;
-//}
+
+void Num::print(std::ostream &stream) {
+    stream<<std::to_string(val);
+}
+
+void Add::print(std::ostream &stream) {
+    stream << "(";
+    lhs->print(stream);
+    stream << "+";
+    rhs->print(stream);
+    stream << ")";
+}
+
+void Mult::print(std::ostream &stream) {
+    stream << "(";
+    lhs->print(stream);
+    stream << "*";
+    rhs->print(stream);
+    stream << ")";
+}
+
+void Var::print(std::ostream &stream) {
+   stream <<var;
+}
+
+
+//---------------------pretty_print----------------------
+
+void Num::pretty_print(std::ostream &ot, precedence_t prec) {
+    ot << val;
+}
+
+void Add::pretty_print(std::ostream &ot, precedence_t prec) {
+    bool needParens = prec > prec_add;
+    if (needParens) ot << "(";
+
+    lhs->pretty_print(ot, prec_add);
+    ot << " + ";
+    rhs->pretty_print(ot, prec_add);
+
+    if (needParens) ot << ")";
+}
+
+void Mult::pretty_print(std::ostream &ot, precedence_t prec) {
+    bool needParens = prec > prec_mult;
+    if (needParens) ot << "(";
+
+    lhs->pretty_print(ot, prec_mult); // Left-hand side with its precedence
+    ot << " * ";
+    rhs->pretty_print(ot, prec_mult); // Right-hand side also considering its precedence
+
+    if (needParens) ot << ")";
+}
+
+void Var::pretty_print(std::ostream &ot, precedence_t prec) {
+    ot << var;
+}
 
 
 

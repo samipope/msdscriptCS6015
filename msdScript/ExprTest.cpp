@@ -3,7 +3,7 @@
 //
 
 
-#include "ExprTest.h"
+#include "catch.h"
 #include "Expr.h"
 #include "cmdline.h"
 #include <stdexcept>
@@ -295,11 +295,65 @@ TEST_CASE("subst tests", "All Expressions") {
 }
 
 
-//TEST_CASE("to_string tests", "all expressions"){
-//    CHECK( (new Var("x"))->to_string() == "x" );
-//    CHECK( (new Add(new Num(1), new Num(2)))->to_string() == "(1+2)" );
-//    CHECK( (new Mult(new Num(3), new Num(4)))->to_string() == "(3*4)" );
-//}
+TEST_CASE("to_string tests", "all expressions"){
+    CHECK( (new Var("x"))->to_string() == "x" );
+    CHECK( (new Add(new Num(1), new Num(2)))->to_string() == "(1+2)" );
+    CHECK( (new Mult(new Num(3), new Num(4)))->to_string() == "(3*4)" );
+    CHECK( (new Num(-5))->to_string() == "-5" );
+    CHECK( (new Num(0))->to_string() == "0" );
+    CHECK( (new Add(new Num(1), new Num(-2)))->to_string() == "(1+-2)" );
+    CHECK( (new Mult(new Num(0), new Num(4)))->to_string() == "(0*4)" );
+    CHECK( (new Mult(new Num(3), new Num(-4)))->to_string() == "(3*-4)" );
+    CHECK( (new Add(new Num(-1), new Mult(new Num(2), new Num(-3))))->to_string() == "(-1+(2*-3))" );
+    CHECK( (new Add(new Var("x"), new Mult(new Add(new Num(0), new Num(-5)), new Var("y"))))->to_string() == "(x+((0+-5)*y))" );
+    CHECK( (new Mult(new Add(new Num(0), new Num(-2)), new Add(new Num(-3), new Num(4))))->to_string() == "((0+-2)*(-3+4))" );
+    CHECK( (new Add(new Var("z"), new Num(-10)))->to_string() == "(z+-10)" );
+    CHECK( (new Mult(new Add(new Var("a"), new Mult(new Num(-1), new Var("b"))), new Add(new Num(0), new Var("c"))))->to_string() == "((a+(-1*b))*(0+c))" );
+}
+
+
+TEST_CASE("pretty_print_at Tests", "All expression classes"){
+// Test pretty_print_at with basic addition
+    std::stringstream ss1;
+    (new Add(new Num(1), new Num(2)))->pretty_print_at(ss1);
+    CHECK( ss1.str() == "1 + 2" );
+// Test pretty_print_at with multiplication and addition
+    std::stringstream ss2;
+    (new Add(new Num(1), new Mult(new Num(2), new Num(3))))->pretty_print_at(ss2);
+    CHECK( ss2.str() == "1 + 2 * 3" );
+// Test pretty_print_at with variable and number addition
+    std::stringstream ss3;
+    (new Add(new Var("x"), new Num(10)))->pretty_print_at(ss3);
+    CHECK( ss3.str() == "x + 10" );
+// Test pretty_print_at with multiplication of a negative number
+    std::stringstream ss4;
+    (new Mult(new Num(-1), new Num(2)))->pretty_print_at(ss4);
+    CHECK( ss4.str() == "-1 * 2" );
+// Test pretty_print_at with nested multiplications
+    std::stringstream ss5;
+    (new Mult(new Num(2), new Mult(new Num(3), new Num(4))))->pretty_print_at(ss5);
+    CHECK( ss5.str() == "2 * 3 * 4" );
+// Test pretty_print_at with nested additions
+    std::stringstream ss6;
+    (new Add(new Num(1), new Add(new Num(2), new Num(3))))->pretty_print_at(ss6);
+    CHECK( ss6.str() == "1 + 2 + 3" );
+// Test pretty_print_at with a complex mixed expression
+    std::stringstream ss7;
+    (new Add(new Mult(new Num(1), new Num(2)), new Mult(new Num(3), new Num(4))))->pretty_print_at(ss7);
+    CHECK( ss7.str() == "1 * 2 + 3 * 4" );
+// Test pretty_print_at with zero in an expression
+    std::stringstream ss8;
+    (new Add(new Num(0), new Num(-5)))->pretty_print_at(ss8);
+    CHECK( ss8.str() == "0 + -5" );
+// Test pretty_print_at with a more complex expression involving variables
+    std::stringstream ss9;
+    (new Mult(new Add(new Num(1), new Var("x")), new Add(new Num(3), new Var("y"))))->pretty_print_at(ss9);
+    CHECK( ss9.str() == "(1 + x) * (3 + y)" );
+// Test pretty_print_at with variable multiplication
+    std::stringstream ss10;
+    (new Mult(new Var("y"), new Num(3)))->pretty_print_at(ss10);
+    CHECK( ss10.str() == "y * 3" );
+}
 
 
 
@@ -328,18 +382,20 @@ TEST_CASE("Nabil's given tests"){
                       ->equals(new Add(new Var("y"), new Num(7))));
     }
 
-//    SECTION("Given Tests for Assignment 4"){
-//        CHECK( (new Num(10))->to_string() == "10" );
-//
-//        // Create a stringstream to capture the output of pretty_print
-//        std::stringstream ss1;
-//        (new Add(new Num(1), new Mult(new Num(2), new Num(3))))->Expr::pretty_print(ss1);
-//        CHECK( ss1.str() == "1 + 2 * 3" );
-//
-//        std::stringstream ss2;
-//        (new Mult(new Num(1), new Add(new Num(2), new Num(3))))->Expr::pretty_print(ss2);
-//        CHECK( ss2.str() == "1 * (2 + 3)" );
-//    }
+    SECTION("Given Tests for Assignment 4"){
+        CHECK( (new Num(10))->to_string() == "10" );
+
+        // Create a stringstream to capture the output of pretty_print
+        std::stringstream ss1;
+        (new Add(new Num(1), new Mult(new Num(2), new Num(3))))->pretty_print_at(ss1);
+        CHECK( ss1.str() == "1 + 2 * 3" );
+
+        std::stringstream ss2;
+        (new Mult(new Num(1), new Add(new Num(2), new Num(3))))->pretty_print_at(ss2);
+        CHECK( ss2.str() == "1 * (2 + 3)" );
+
+
+    }
     }
 
 
