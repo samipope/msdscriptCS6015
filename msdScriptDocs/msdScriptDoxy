@@ -1,0 +1,11 @@
+PROJECT_NAME = "msdScript"
+
+INPUT = /samanthapope/msdscriptRepo/msdScript
+
+OUTPUT_DIRECTORY = /samanthapope/msdscriptRepo/msdScriptDocs
+
+EXTRACT_ALL = YES
+
+EXTRACT_PRIVATE = YES
+
+EXCLUDE = catch.h Archive.zip
