@@ -25,6 +25,14 @@ $(TARGET): $(SRCS) $(HEADERS)
 test: msdscript
 	./msdscript --test
 
+#define path to doxyfile
+	DOXYFILE_PATH = /Users/samanthapope/msdscriptRepo/msdScriptDocs/msdScriptDoxyFile.bak
+
+#target for generating documentation with Doxygen
+doc:
+	doxygen $(DOXYFILE_PATH)
+
+
 # Define clean command
 .PHONY: clean
 clean:

@@ -1,0 +1,229 @@
+\doxysection{Mult Class Reference}
+\hypertarget{class_mult}{}\label{class_mult}\index{Mult@{Mult}}
+
+
+{\ttfamily \#include $<$Expr.\+h$>$}
+
+Inheritance diagram for Mult\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_mult}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_mult_ace9998f1dc023823e04c15bb359ea79c}{Mult}} (\mbox{\hyperlink{class_expr}{Expr}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{class_mult_a9e2acda98ce8c008004b39f1f76e7eab}{lhs}}, \mbox{\hyperlink{class_expr}{Expr}} \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{class_mult_abc649b82c60b2531ceeff3a5d7a552b0}{rhs}})
+\item 
+bool \mbox{\hyperlink{class_mult_aa64da9a8fc6b019f8a2db6f813d9a4e6}{equals}} (\mbox{\hyperlink{class_expr}{Expr}} \texorpdfstring{$\ast$}{*}e) override
+\item 
+int \mbox{\hyperlink{class_mult_a0ae0098f4a1adaef9686983f263ab35a}{interp}} () override
+\item 
+bool \mbox{\hyperlink{class_mult_aa92633e479bad1ece5c0db7081acf1aa}{has\+Variable}} () override
+\item 
+\mbox{\hyperlink{class_expr}{Expr}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_mult_af3351d7929c869223f3d5b77240f85e3}{subst}} (std\+::string string\+Input, \mbox{\hyperlink{class_expr}{Expr}} \texorpdfstring{$\ast$}{*}e) override
+\item 
+void \mbox{\hyperlink{class_mult_a551533c867f54958b4b782331cc69270}{print}} (std\+::ostream \&stream) override
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions inherited from \mbox{\hyperlink{class_expr}{Expr}}}
+\begin{DoxyCompactItemize}
+\item 
+virtual \mbox{\hyperlink{class_expr_ad14272b4da43b43c6f6c8f897f320ffa}{\texorpdfstring{$\sim$}{\string~}\+Expr}} ()=default
+\item 
+std\+::string \mbox{\hyperlink{class_expr_abe130f37bd185ec13c5113de16fc7bf7}{to\+\_\+string}} ()
+\item 
+std\+::string \mbox{\hyperlink{class_expr_aacb8bcf185dd0b795ff2eb9dbbfda95c}{to\+\_\+pp\+\_\+string}} ()
+\item 
+void \mbox{\hyperlink{class_expr_a89e90b443d11550c835c5acb781b6256}{pretty\+\_\+print\+\_\+at}} (std\+::ostream \&ot)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_expr}{Expr}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_mult_a9e2acda98ce8c008004b39f1f76e7eab}{lhs}}
+\item 
+\mbox{\hyperlink{class_expr}{Expr}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{class_mult_abc649b82c60b2531ceeff3a5d7a552b0}{rhs}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{class_mult_a06f4f7c25e3e4e01db81922fa3cf1ac2}{pretty\+\_\+print}} (std\+::ostream \&ot, \mbox{\hyperlink{_expr_8h_a9e5fdf365cd8dc7be4d972daf07f8bdf}{precedence\+\_\+t}} prec) override
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+
+
+Definition at line \mbox{\hyperlink{_expr_8h_source_l00075}{75}} of file \mbox{\hyperlink{_expr_8h_source}{Expr.\+h}}.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{class_mult_ace9998f1dc023823e04c15bb359ea79c}\label{class_mult_ace9998f1dc023823e04c15bb359ea79c} 
+\index{Mult@{Mult}!Mult@{Mult}}
+\index{Mult@{Mult}!Mult@{Mult}}
+\doxysubsubsection{\texorpdfstring{Mult()}{Mult()}}
+{\footnotesize\ttfamily Mult\+::\+Mult (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_expr}{Expr}} \texorpdfstring{$\ast$}{*}}]{lhs,  }\item[{\mbox{\hyperlink{class_expr}{Expr}} \texorpdfstring{$\ast$}{*}}]{rhs }\end{DoxyParamCaption})}
+
+Constructs a \doxylink{class_mult}{Mult} object with left and right expressions. 
+\begin{DoxyParams}{Parameters}
+{\em lhs} & Pointer to the left-\/hand side expression. \\
+\hline
+{\em rhs} & Pointer to the right-\/hand side expression. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{_expr_8cpp_source_l00027}{27}} of file \mbox{\hyperlink{_expr_8cpp_source}{Expr.\+cpp}}.
+
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_mult_aa64da9a8fc6b019f8a2db6f813d9a4e6}\label{class_mult_aa64da9a8fc6b019f8a2db6f813d9a4e6} 
+\index{Mult@{Mult}!equals@{equals}}
+\index{equals@{equals}!Mult@{Mult}}
+\doxysubsubsection{\texorpdfstring{equals()}{equals()}}
+{\footnotesize\ttfamily bool Mult\+::equals (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_expr}{Expr}} \texorpdfstring{$\ast$}{*}}]{e }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Checks if this \doxylink{class_mult}{Mult} object is equal to another expression. 
+\begin{DoxyParams}{Parameters}
+{\em e} & Pointer to the expression to compare with. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the expressions are equivalent, false otherwise. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{class_expr_abf9cdb765fb84304881789d273d7594f}{Expr}}.
+
+
+
+Definition at line \mbox{\hyperlink{_expr_8cpp_source_l00065}{65}} of file \mbox{\hyperlink{_expr_8cpp_source}{Expr.\+cpp}}.
+
+\Hypertarget{class_mult_aa92633e479bad1ece5c0db7081acf1aa}\label{class_mult_aa92633e479bad1ece5c0db7081acf1aa} 
+\index{Mult@{Mult}!hasVariable@{hasVariable}}
+\index{hasVariable@{hasVariable}!Mult@{Mult}}
+\doxysubsubsection{\texorpdfstring{hasVariable()}{hasVariable()}}
+{\footnotesize\ttfamily bool Mult\+::has\+Variable (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Checks if the \doxylink{class_mult}{Mult} expression contains a variable. \begin{DoxyReturn}{Returns}
+true if either the left or right expressions contain a variable, false otherwise. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{class_expr_a65e1380b5c7453b09cd1958c4b8feea9}{Expr}}.
+
+
+
+Definition at line \mbox{\hyperlink{_expr_8cpp_source_l00133}{133}} of file \mbox{\hyperlink{_expr_8cpp_source}{Expr.\+cpp}}.
+
+\Hypertarget{class_mult_a0ae0098f4a1adaef9686983f263ab35a}\label{class_mult_a0ae0098f4a1adaef9686983f263ab35a} 
+\index{Mult@{Mult}!interp@{interp}}
+\index{interp@{interp}!Mult@{Mult}}
+\doxysubsubsection{\texorpdfstring{interp()}{interp()}}
+{\footnotesize\ttfamily int Mult\+::interp (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Evaluates the multiplication expression. \begin{DoxyReturn}{Returns}
+The product of the left and right expressions. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{class_expr_aeba8585d8225419d49166371306542c1}{Expr}}.
+
+
+
+Definition at line \mbox{\hyperlink{_expr_8cpp_source_l00101}{101}} of file \mbox{\hyperlink{_expr_8cpp_source}{Expr.\+cpp}}.
+
+\Hypertarget{class_mult_a06f4f7c25e3e4e01db81922fa3cf1ac2}\label{class_mult_a06f4f7c25e3e4e01db81922fa3cf1ac2} 
+\index{Mult@{Mult}!pretty\_print@{pretty\_print}}
+\index{pretty\_print@{pretty\_print}!Mult@{Mult}}
+\doxysubsubsection{\texorpdfstring{pretty\_print()}{pretty\_print()}}
+{\footnotesize\ttfamily void Mult\+::pretty\+\_\+print (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{ot,  }\item[{\mbox{\hyperlink{_expr_8h_a9e5fdf365cd8dc7be4d972daf07f8bdf}{precedence\+\_\+t}}}]{prec }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+Pretty prints the \doxylink{class_mult}{Mult} expression with appropriate precedence. 
+\begin{DoxyParams}{Parameters}
+{\em ot} & The output stream to print to. \\
+\hline
+{\em prec} & The precedence context in which this expression is being printed. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{class_expr_a02a3a4230ed4972345fbbb60381af8cd}{Expr}}.
+
+
+
+Definition at line \mbox{\hyperlink{_expr_8cpp_source_l00261}{261}} of file \mbox{\hyperlink{_expr_8cpp_source}{Expr.\+cpp}}.
+
+\Hypertarget{class_mult_a551533c867f54958b4b782331cc69270}\label{class_mult_a551533c867f54958b4b782331cc69270} 
+\index{Mult@{Mult}!print@{print}}
+\index{print@{print}!Mult@{Mult}}
+\doxysubsubsection{\texorpdfstring{print()}{print()}}
+{\footnotesize\ttfamily void Mult\+::print (\begin{DoxyParamCaption}\item[{std\+::ostream \&}]{stream }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Prints the \doxylink{class_mult}{Mult} expression to a given output stream. 
+\begin{DoxyParams}{Parameters}
+{\em stream} & The output stream to print to. \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{class_expr_a8e34377af275f60532d1ba76e6feaceb}{Expr}}.
+
+
+
+Definition at line \mbox{\hyperlink{_expr_8cpp_source_l00217}{217}} of file \mbox{\hyperlink{_expr_8cpp_source}{Expr.\+cpp}}.
+
+\Hypertarget{class_mult_af3351d7929c869223f3d5b77240f85e3}\label{class_mult_af3351d7929c869223f3d5b77240f85e3} 
+\index{Mult@{Mult}!subst@{subst}}
+\index{subst@{subst}!Mult@{Mult}}
+\doxysubsubsection{\texorpdfstring{subst()}{subst()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_expr}{Expr}} \texorpdfstring{$\ast$}{*} Mult\+::subst (\begin{DoxyParamCaption}\item[{std\+::string}]{string\+Input,  }\item[{\mbox{\hyperlink{class_expr}{Expr}} \texorpdfstring{$\ast$}{*}}]{e }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Substitutes a variable with another expression in a \doxylink{class_mult}{Mult} object. 
+\begin{DoxyParams}{Parameters}
+{\em string\+Input} & The name of the variable to substitute. \\
+\hline
+{\em e} & The expression to substitute the variable with. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A new \doxylink{class_mult}{Mult} object with the substituted expressions. 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{class_expr_aeedf9ef1104d23d0695d0dbadf3f6189}{Expr}}.
+
+
+
+Definition at line \mbox{\hyperlink{_expr_8cpp_source_l00173}{173}} of file \mbox{\hyperlink{_expr_8cpp_source}{Expr.\+cpp}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{class_mult_a9e2acda98ce8c008004b39f1f76e7eab}\label{class_mult_a9e2acda98ce8c008004b39f1f76e7eab} 
+\index{Mult@{Mult}!lhs@{lhs}}
+\index{lhs@{lhs}!Mult@{Mult}}
+\doxysubsubsection{\texorpdfstring{lhs}{lhs}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_expr}{Expr}}\texorpdfstring{$\ast$}{*} Mult\+::lhs}
+
+
+
+Definition at line \mbox{\hyperlink{_expr_8h_source_l00077}{77}} of file \mbox{\hyperlink{_expr_8h_source}{Expr.\+h}}.
+
+\Hypertarget{class_mult_abc649b82c60b2531ceeff3a5d7a552b0}\label{class_mult_abc649b82c60b2531ceeff3a5d7a552b0} 
+\index{Mult@{Mult}!rhs@{rhs}}
+\index{rhs@{rhs}!Mult@{Mult}}
+\doxysubsubsection{\texorpdfstring{rhs}{rhs}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_expr}{Expr}}\texorpdfstring{$\ast$}{*} Mult\+::rhs}
+
+
+
+Definition at line \mbox{\hyperlink{_expr_8h_source_l00078}{78}} of file \mbox{\hyperlink{_expr_8h_source}{Expr.\+h}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/samanthapope/msdscript\+Repo/msd\+Script/\mbox{\hyperlink{_expr_8h}{Expr.\+h}}\item 
+/\+Users/samanthapope/msdscript\+Repo/msd\+Script/\mbox{\hyperlink{_expr_8cpp}{Expr.\+cpp}}\end{DoxyCompactItemize}

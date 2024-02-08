@@ -1,0 +1,52 @@
+\doxysection{cmdline.\+cpp}
+\hypertarget{cmdline_8cpp_source}{}\label{cmdline_8cpp_source}\index{/Users/samanthapope/msdscriptRepo/msdScript/cmdline.cpp@{/Users/samanthapope/msdscriptRepo/msdScript/cmdline.cpp}}
+\mbox{\hyperlink{cmdline_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00001}00001\ \textcolor{comment}{//}}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00002}00002\ \textcolor{comment}{//\ Created\ by\ Samantha\ Pope\ on\ 1/19/24.}}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00003}00003\ \textcolor{comment}{//}}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00004}00004\ }
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00005}00005\ \textcolor{preprocessor}{\#include\ <iostream>}}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00006}00006\ \textcolor{preprocessor}{\#include\ <cstring>}\ \textcolor{comment}{//\ For\ strcmp}}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00007}\mbox{\hyperlink{cmdline_8cpp_a34b4c3eca7342fbc4cba090d02139902}{00007}}\ \textcolor{preprocessor}{\#define\ CATCH\_CONFIG\_RUNNER}}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00008}00008\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{cmdline_8h}{cmdline.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00009}00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{catch_8h}{catch.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00010}00010\ }
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00011}\mbox{\hyperlink{cmdline_8cpp_aab3ddecc5578b62143c913540ab32fbd}{00011}}\ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{cmdline_8cpp_aab3ddecc5578b62143c913540ab32fbd}{useArgs}}(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *argv[])\ \{}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00012}00012\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ testAlreadyPressed\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00013}00013\ }
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00014}00014\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 1;\ i\ <\ argc;\ ++i)\ \{}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00015}00015\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//loop\ for\ all\ of\ it}}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00016}00016\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (strcmp(argv[i],\ \textcolor{stringliteral}{"{}-\/-\/help"{}})\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00017}00017\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Usage:\ ./msdscript\ -\/-\/[option]\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00018}00018\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{}Options:\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00019}00019\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{}\ \ -\/-\/help\ \ Show\ this\ help\ message\(\backslash\)n"{}}}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00020}00020\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ <<\ \textcolor{stringliteral}{"{}\ \ -\/-\/test\ \ Run\ tests\(\backslash\)n"{}};}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00021}00021\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ exit(0);}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00022}00022\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00023}00023\ }
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00024}00024\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//have\ to\ control\ for\ if\ it\ is\ the\ first\ test\ that\ they\ wrote\ or\ not}}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00025}00025\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (strcmp(argv[i],\ \textcolor{stringliteral}{"{}-\/-\/test"{}})\ ==\ 0)\ \{}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00026}00026\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!testAlreadyPressed)\ \{}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00027}00027\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ testAlreadyPressed\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00028}00028\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(\mbox{\hyperlink{struct_catch_1_1true__given}{Catch::Session}}().run(1,argv)\ !=0)\{}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00029}00029\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//if\ catch\ returns\ a\ non-\/zero\ value,\ then\ kill\ the\ program}}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00030}00030\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ exit(1);}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00031}00031\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00032}00032\ }
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00033}00033\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cout\ <<\ \textcolor{stringliteral}{"{}Tests\ passed\(\backslash\)n"{}};}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00034}00034\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00035}00035\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//-\/-\/test\ flag\ already\ seen}}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00036}00036\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00037}00037\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}Error:\ -\/-\/test\ argument\ already\ seen\(\backslash\)n"{}};}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00038}00038\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ exit(1);}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00039}00039\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00040}00040\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00041}00041\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::cerr\ <<\ \textcolor{stringliteral}{"{}Error:\ Unknown\ argument:\ \ "{}}\ <<\ argv[i]\ <<\ \textcolor{stringliteral}{"{}\(\backslash\)n"{}};}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00042}00042\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ exit(1);}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00043}00043\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00044}00044\ }
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00045}00045\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{cmdline_8cpp_source_l00046}00046\ \ \ \ \ \ \ \ \ \}}
+
+\end{DoxyCode}
