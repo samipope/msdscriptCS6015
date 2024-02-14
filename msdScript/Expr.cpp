@@ -37,6 +37,18 @@ Var::Var(const std::string& varPassed) : var(std::move(varPassed)) {
 }
 
 /**
+ * Constructor for the _Let class
+ * @param varName the name of the expression ex: "x"
+ * @param expr1 the expression being passed ex: "Num(5)" or "Add(2,3)"
+ * @param expr2 the expression being passed ex: "Num(5)" or "Add(2,3)"
+ */
+_Let::_Let(std::string varName, Expr* expr1, Expr* expr2){
+    this->varName = varName;
+    this->head=expr1;
+    this->body=expr2;
+}
+
+/**
  * Checks if this Num object is equal to another expression.
  * @param e Pointer to the expression to compare with.
  * @return true if the expressions are equivalent, false otherwise.
@@ -79,6 +91,18 @@ bool Var::equals(Expr *e) {
 }
 
 /**
+ * returns if the object passed was the same type of object and if they are the same
+ * @param e
+ * @return
+ */
+bool _Let::equals(Expr *e) {
+    auto other = dynamic_cast<_Let*>(e); //dyamic cast it to that type
+    if (other == nullptr) return false; // if type is not the same, return false
+    return varName == other->varName && head->equals(other->head) && body->equals(other->body);
+}
+
+
+/**
  * Evaluates the numeric expression.
  * @return The integer value of the Num object.
  */
@@ -111,6 +135,24 @@ int Var::interp() {
 }
 
 /**
+ * Interprets the function by passing in the value the variable is set to and solving
+ * @return int that the solution equals
+ */
+int _Let::interp() {
+    // evaluate the head expression to get its integer value -> make a num
+    int val1 = head->interp();
+    Expr* tempValExpr = new Num(val1);
+    // substitute the variable in the body expression with the temporary value expression.
+    Expr* substitutedBody = body->subst(varName, tempValExpr);
+    // evaluate the substituted body expression.
+    int result = substitutedBody->interp();
+    // clean up the temporary expressions created for substitution.
+    delete tempValExpr;
+    delete substitutedBody;
+    return result;
+}
+
+/**
  * Checks if the Num expression contains a variable.
  * @return false because Num does not contain a variable.
  */
@@ -140,6 +182,13 @@ bool Mult::hasVariable() {
  */
 bool Var::hasVariable() {
     return true;
+}
+
+/**
+ * @return true if either side has a variable (Var object) or not
+ */
+bool _Let::hasVariable() {
+    return head->hasVariable() || body->hasVariable();
 }
 
 /**
@@ -191,6 +240,18 @@ Expr* Var::subst(std::string stringInput, Expr *e) {
 }
 
 /**
+ * pass an expression in to sub
+ * @param stringInput (new head for new Let object)
+ * @param e (Expr)
+ * @return new _Let object
+ */
+Expr *_Let::subst(std::string stringInput, Expr *e) {
+    Expr* newhead = head->subst(stringInput, e);
+    Expr* newbody = (stringInput == varName) ? body : body->subst(stringInput, e);
+    return new _Let(varName, newhead, newbody);
+}
+
+/**
  * Prints the Num expression to a given output stream.
  * @param stream The output stream to print to.
  */
@@ -231,11 +292,19 @@ void Var::print(std::ostream &stream) {
 }
 
 /**
+ * Prints out object using a stream
+ * @param stream
+ */
+void _Let::print(std::ostream &stream) {
+    stream << "(_let " << varName << "=" << head->to_string() << " _in " << body->to_string() << ")";
+}
+
+/**
  * Pretty prints the Num expression with appropriate precedence.
  * @param ot The output stream to print to.
  * @param prec The precedence context in which this expression is being printed.
  */
-void Num::pretty_print(std::ostream &ot, precedence_t prec) {
+void Num::pretty_print(std::ostream &ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) {
     ot << val;
 }
 
@@ -244,12 +313,12 @@ void Num::pretty_print(std::ostream &ot, precedence_t prec) {
  * @param ot The output stream to print to.
  * @param prec The precedence context in which this expression is being printed.
  */
-void Add::pretty_print(std::ostream &ot, precedence_t prec) {
+void Add::pretty_print(std::ostream &ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) {
     bool needParens = prec > prec_add;
     if (needParens) ot << "(";
-    lhs->pretty_print(ot, static_cast<precedence_t>(prec_add + 1));
+    lhs->pretty_print(ot, static_cast<precedence_t>(prec_add + 1),lastNewLinePos, false);
     ot << " + ";
-    rhs->pretty_print(ot, prec_add);
+    rhs->pretty_print(ot, prec_add,lastNewLinePos, needParens);
     if (needParens) ot << ")";
 }
 
@@ -258,12 +327,12 @@ void Add::pretty_print(std::ostream &ot, precedence_t prec) {
  * @param ot The output stream to print to.
  * @param prec The precedence context in which this expression is being printed.
  */
-void Mult::pretty_print(std::ostream &ot, precedence_t prec) {
+void Mult::pretty_print(std::ostream &ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) {
     bool needParens = prec > prec_mult;
     if (needParens) ot << "(";
-    lhs->pretty_print(ot, static_cast<precedence_t>(prec_mult + 1));
+    this->lhs->pretty_print(ot, static_cast<precedence_t>(prec_mult + 1),lastNewLinePos, needParens);
     ot << " * ";
-    rhs->pretty_print(ot, prec_mult);
+    this->rhs->pretty_print(ot, prec_mult,lastNewLinePos, needParens);
     if (needParens) ot << ")";
 }
 
@@ -272,6 +341,65 @@ void Mult::pretty_print(std::ostream &ot, precedence_t prec) {
  * @param ot The output stream to print to.
  * @param prec The precedence context in which this expression is being printed.
  */
-void Var::pretty_print(std::ostream &ot, precedence_t prec) {
+void Var::pretty_print(std::ostream &ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) {
     ot << var;
+}
+
+
+/**
+ * Prints out object in a more readable way using precedence, stream and streampos
+ * @param ot
+ * @param prec
+ * @param lastNewLinePos
+ */
+void _Let::pretty_print(std::ostream &ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) {
+    if (!paren && prec != prec_none) {
+        ot << "(";
+    }
+    std::streampos letPosition = ot.tellp();
+    std::streampos depth = letPosition - lastNewLinePos;
+    ot << "_let " << this->varName<<" = ";
+    //print bound expression with passing difference
+    this->head->pretty_print(ot,prec_none, depth,paren);
+    ot << "\n ";
+    std::streampos nextPos = ot.tellp();
+    //start print with indentation
+    for ( int i = 0; i < letPosition - lastNewLinePos; i++ ) {
+        ot << " ";
+    }
+    ot<< "_in  ";
+    this->body->pretty_print(ot, prec_none, nextPos,paren);
+    if (!paren && prec != prec_none) {
+        ot << ")";
+    }
+
+}
+
+void Num::pretty_print_at(std::ostream &ot) {
+    std::streampos lastNewLinePos =ot.tellp(); //initiate to 0
+     this-> pretty_print(ot,prec_none,lastNewLinePos, false);
+}
+
+void Var::pretty_print_at(std::ostream &ot) {
+    std::streampos lastNewLinePos =ot.tellp(); //initiate to 0
+    this-> pretty_print(ot,prec_none,lastNewLinePos, false);
+
+}
+
+//fixed
+void Mult::pretty_print_at(std::ostream &ot) {
+    std::streampos lastNewLinePos = ot.tellp(); //initiate to 0
+    this-> pretty_print(ot,prec_mult,lastNewLinePos, false);
+}
+
+//fixed
+void Add::pretty_print_at(std::ostream &ot) {
+    std::streampos lastNewLinePos =ot.tellp();
+    this-> pretty_print(ot,prec_add,lastNewLinePos, false);
+}
+
+//fixed
+void _Let::pretty_print_at(std::ostream &ot) {
+    std::streampos lastNewLinePos =ot.tellp();
+    this-> pretty_print(ot,prec_none,lastNewLinePos, false);
 }

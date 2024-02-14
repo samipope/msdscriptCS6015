@@ -35,12 +35,9 @@ public:
     }
 
     virtual void print(std::ostream& stream)=0;
+    virtual void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren)=0;
+    virtual void pretty_print_at(std::ostream &ot)=0;
 
-    virtual void pretty_print(std::ostream& ot, precedence_t prec)=0;
-
-    void pretty_print_at(std::ostream &ot){
-        this-> pretty_print(ot,prec_none);
-    }
 };
 
 class Num : public Expr {
@@ -52,8 +49,9 @@ public:
     bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
     void print(std::ostream& stream) override;
+    void pretty_print_at(std::ostream &ot) override;
 protected:
-    void pretty_print(std::ostream& ot, precedence_t prec) override;
+    void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
 };
 
 class Add : public Expr {
@@ -67,8 +65,10 @@ public:
     bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
     void print(std::ostream& stream) override;
+    void pretty_print_at(std::ostream &ot) override;
+
 protected:
-    void pretty_print(std::ostream& ot, precedence_t prec) override;
+    void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
 
 };
 
@@ -83,8 +83,10 @@ public:
     bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
     void print(std::ostream& stream) override;
+    void pretty_print_at(std::ostream &ot) override;
+
 protected:
-    void pretty_print(std::ostream& ot, precedence_t prec) override;
+    void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
 
 };
 
@@ -97,8 +99,28 @@ public:
     bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
     void print(std::ostream& stream) override;
+    void pretty_print_at(std::ostream &ot) override;
+
 protected:
-    void pretty_print(std::ostream& ot, precedence_t prec) override;
+    void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
+
+};
+
+
+class _Let : public Expr {
+public:
+    std::string varName;
+    Expr* head ;
+    Expr* body;
+
+    bool equals(Expr *e) override;
+    int interp() override;
+    bool hasVariable() override;
+    Expr* subst(std::string stringInput, Expr* e) override;
+    void print(std::ostream& stream) override;
+    void pretty_print_at(std::ostream &ot) override;
+    _Let(std::string varName, Expr* expr1, Expr* expr2);
+    void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
 
 };
 

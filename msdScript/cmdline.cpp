@@ -7,6 +7,7 @@
 #define CATCH_CONFIG_RUNNER
 #include "cmdline.h"
 #include "catch.h"
+#include "parse.h"
 
  void useArgs(int argc, const char *argv[]) {
             static bool testAlreadyPressed = false;

@@ -313,38 +313,73 @@ TEST_CASE("to_string tests", "all expressions"){
 
 
 TEST_CASE("pretty_print_at Tests", "All expression classes"){
-// Test for simple addition
     std::stringstream ss3;
     (new Add(new Num(4), new Num(5)))->pretty_print_at(ss3);
     CHECK(ss3.str() == "4 + 5");
-
-// Test for more complex expression with addition and multiplication
     std::stringstream ss4;
     (new Add(new Num(4), new Mult(new Num(5), new Num(6))))->pretty_print_at(ss4);
     CHECK(ss4.str() == "4 + 5 * 6");
-
-// Test for nested expressions with multiple parentheses
     std::stringstream ss5;
     (new Add(new Mult(new Num(1), new Num(2)), new Add(new Num(3), new Mult(new Num(4), new Num(5)))))->pretty_print_at(ss5);
     CHECK(ss5.str() == "1 * 2 + 3 + 4 * 5");
-
-// Test to_pp_string method for complex nested expression
     CHECK((new Add(new Mult(new Num(1), new Add(new Num(2), new Num(3))), new Num(4)))->to_pp_string() == "1 * (2 + 3) + 4");
-
-// Test for multiplication precedence over addition
     CHECK((new Mult(new Add(new Num(2), new Num(3)), new Num(4)))->to_pp_string() == "(2 + 3) * 4");
-
-// Test for deep nesting with multiple operations
     CHECK((new Add(new Num(2), new Mult(new Add(new Num(3), new Num(4)), new Num(5))))->to_pp_string() == "2 + (3 + 4) * 5");
-
-// Test involving variables and operations
     CHECK((new Add(new Var("x"), new Mult(new Var("y"), new Num(2))))->to_pp_string() == "x + y * 2");
-
-// Test for expression with multiple variables and numbers
     CHECK((new Mult(new Add(new Var("a"), new Var("b")), new Add(new Num(5), new Var("c"))))->to_pp_string() == "(a + b) * (5 + c)");
-
-// Test for nested multiplications with a variable
     CHECK((new Mult(new Mult(new Var("z"), new Num(3)), new Add(new Num(4), new Num(5))))->to_pp_string() == "(z * 3) * (4 + 5)");
+
+}
+
+
+TEST_CASE("_Let Tests"){
+    SECTION("hasVariable()"){
+        CHECK((_Let("x", new Num(5), new Var("x")).hasVariable() == true));
+        CHECK((_Let("x", new Num(5), new Num(10)).hasVariable() == false));
+        CHECK((_Let("x", new Add(new Var("y"), new Num(1)), new Num(10)).hasVariable() == true));
+        CHECK((_Let("x", new Num(5), new Mult(new Var("x"), new Num(2))).hasVariable() == true));
+        CHECK((_Let("y", new Num(5), new Var("x")).hasVariable() == true));
+    }
+    SECTION("equals"){
+        CHECK((_Let("x", new Num(5), new Var("x")).equals(new _Let("x", new Num(5), new Var("x"))) == true));
+        CHECK((_Let("x", new Num(5), new Var("x")).equals(new _Let("y", new Num(5), new Var("x"))) == false));
+        CHECK((_Let("x", new Add(new Num(1), new Num(2)), new Var("x")).equals(new _Let("x", new Add(new Num(1), new Num(2)), new Var("x"))) == true));
+        CHECK((_Let("x", new Num(5), new Var("y")).equals(new _Let("x", new Num(5), new Var("x"))) == false));
+        CHECK((_Let("x", new Mult(new Num(2), new Num(3)), new Var("x")).equals(new _Let("x", new Mult(new Num(3), new Num(2)), new Var("x"))) == true)); // Assuming Mult equals is commutative
+    }
+
+    SECTION("subst"){
+        CHECK(_Let("x", new Num(5), new Var("x")).subst("y", new Num(20))->equals(new _Let("x", new Num(5), new Var("x"))));
+        CHECK(_Let("x", new Add(new Var("y"), new Num(1)), new Var("x")).subst("y", new Num(5))->equals(new _Let("x", new Add(new Num(5), new Num(1)), new Var("x"))));
+        CHECK(_Let("y", new Num(5), new Mult(new Var("y"), new Var("x"))).subst("x", new Num(3))->equals(new _Let("y", new Num(5), new Mult(new Var("y"), new Num(3)))));
+        CHECK(_Let("z", new Mult(new Var("x"), new Num(2)), new Var("z")).subst("x", new Num(4))->equals(new _Let("z", new Mult(new Num(4), new Num(2)), new Var("z"))));
+    }
+    SECTION("print and pretty_print") {
+        //Let nested as right argument of parenthesized multiplication expression
+        CHECK ( (new Mult(new Mult(new Num (2), new _Let("x", new Num(5), new Add(new Var("x") , new Num(1)) )), new Num(3)))->to_pp_string() == "(2 * _let x = 5\n"
+                                                                                                                                                        "      _in  x + 1) * 3");
+        //Let nested to the left in add expression which is nested to the right within a multiplication expression
+        CHECK((new Mult(new Num(5), new Add(new _Let("x", new Num(5), new Var("x")), new Num(1))))->to_pp_string() == "5 * ((_let x = 5\n"
+                                                                                                                             "       _in  x) + 1)");
+        //Let in lhs of add
+        CHECK ( (new Add(new _Let("x", new Num(2), new Add(new Var("x"), new Num(9))), new Num(4)))->to_pp_string() == "(_let x = 2\n"
+                                                                                                                              "  _in  x + 9) + 4");
+        //Let in lhs of multiplication expression
+        CHECK((new Mult(new _Let("x", new Num(5), new Add(new Var("x"), new Num(8))), new Num(3)))->to_pp_string() == "(_let x = 5\n"
+                                                                                                                             "  _in  x + 8) * 3");
+        //Let nest as right argument of un-parenthesized multiplication expression
+        CHECK((new Add (new Mult(new Num(4), new _Let("x", new Num(5), new Add(new Var("x"), new Num(1)))), new Num(9)))->to_pp_string() == "4 * (_let x = 5\n"
+                                                                                                                                                   "      _in  x + 1) + 9");
+        //Let nested to the left within let that is nested to the left within add
+        CHECK ((new Add(new _Let("x", new Num(3), new _Let("y", new Num(3), new Add(new Var("y"), new Num(2))) ), new Var("x")))->to_pp_string() == "(_let x = 3\n"
+                                                                                                                                                                   "  _in  _let y = 3\n"
+                                                                                                                                                                   "       _in  y + 2) + x");
+        //Let nested in lhs of Add expression nested within body of let expression
+        CHECK((new _Let("x", new Num(5), new Add(new _Let("y" , new Num(3), new Add(new Var("y"), new Num(2))), new Var("x"))))
+                      ->to_pp_string() == "_let x = 5\n"
+                                         " _in  (_let y = 3\n"
+                                         "       _in  y + 2) + x");
+    }
 
 }
 
@@ -392,9 +427,18 @@ TEST_CASE("Nabil's given tests") {
                "(3 + 5) * 6 * 1");
         CHECK ((new Mult(new Mult(new Num(7), new Num(7)), new Add(new Num(9), new Num(2))))->to_pp_string() ==
                "(7 * 7) * (9 + 2)");
-
     }
-}
-
-
-
+        SECTION("Nabil Given Test Assignment 5") {
+            std::string expected = "(2 * _let x = 5\n"
+                                   "      _in  x + 1) * 3";
+            Expr* expr = new Mult(
+                    new Mult(
+                            new Num(2),
+                            new _Let("x", new Num(5), new Add(new Var("x"), new Num(1)))
+                    ),
+                    new Num(3)
+            );
+            CHECK(expr->to_pp_string() == expected);
+            delete expr;
+        }
+    }

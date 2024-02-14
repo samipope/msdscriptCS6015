@@ -10,8 +10,8 @@ CXXFLAGS = -std=c++11 -Wall
 INCLUDES =
 
 # Define source (.cpp) and header (.hpp) files
-SRCS = main.cpp cmdline.cpp Expr.cpp ExprTest.cpp
-HEADERS = cmdline.h Expr.h catch.h
+SRCS = main.cpp cmdline.cpp Expr.cpp ExprTest.cpp parse.cpp
+HEADERS = cmdline.h Expr.h catch.h parse.h
 
 # Define the target executable
 TARGET = msdscript
@@ -25,12 +25,10 @@ $(TARGET): $(SRCS) $(HEADERS)
 test: msdscript
 	./msdscript --test
 
-#define path to doxyfile
-	DOXYFILE_PATH = /Users/samanthapope/msdscriptRepo/msdScriptDocs/msdScriptDoxyFile.bak
 
 #target for generating documentation with Doxygen
 doc:
-	doxygen $(DOXYFILE_PATH)
+	doxygen /Users/samanthapope/msdscriptRepo/msdScriptDocs/msdScriptDoxyFile
 
 
 # Define clean command
