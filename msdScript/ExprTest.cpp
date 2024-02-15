@@ -8,23 +8,24 @@
 #include "cmdline.h"
 #include <stdexcept>
 #include <sstream>
+#include <iostream>
 
 TEST_CASE("Num equals tests", "[Num]") {
-Num num1(5);
-Num num2(5);
-Num num3(10);
+    Num num1(5);
+    Num num2(5);
+    Num num3(10);
 
-SECTION("Equal numbers") {
-REQUIRE(num1.equals(&num2));
-}
+    SECTION("Equal numbers") {
+        REQUIRE(num1.equals(&num2));
+    }
 
-SECTION("Not equal numbers") {
-REQUIRE_FALSE(num1.equals(&num3));
-}
+    SECTION("Not equal numbers") {
+        REQUIRE_FALSE(num1.equals(&num3));
+    }
 
-SECTION("Comparison with null") {
-REQUIRE_FALSE(num1.equals(nullptr));
-}
+    SECTION("Comparison with null") {
+        REQUIRE_FALSE(num1.equals(nullptr));
+    }
 }
 
 TEST_CASE("Num Edge Cases"){
@@ -41,46 +42,46 @@ TEST_CASE("Num Edge Cases"){
 }
 
 TEST_CASE("Add equals tests", "Add") {
-Num n1(3), n2(4), n3(3), n4(4);
-Add add1(&n1, &n2);
-Add add2(&n3, &n4);
-Add add3(&n2, &n1);  // Different order
-Num differentNum(7);
-Add differentAdd(&n1, &differentNum);
+    Num n1(3), n2(4), n3(3), n4(4);
+    Add add1(&n1, &n2);
+    Add add2(&n3, &n4);
+    Add add3(&n2, &n1);  // Different order
+    Num differentNum(7);
+    Add differentAdd(&n1, &differentNum);
 
-SECTION("Equal Adds") {
-REQUIRE(add1.equals(&add2));
-}
-SECTION("Equal Adds with different order") {
-REQUIRE(add1.equals(&add3));
-}
-SECTION("Not equal Adds") {
-REQUIRE_FALSE(add1.equals(&differentAdd));
-}
-SECTION("Comparison with null") {
-REQUIRE_FALSE(add1.equals(nullptr));
-}
+    SECTION("Equal Adds") {
+        REQUIRE(add1.equals(&add2));
+    }
+    SECTION("Equal Adds with different order") {
+        REQUIRE(add1.equals(&add3));
+    }
+    SECTION("Not equal Adds") {
+        REQUIRE_FALSE(add1.equals(&differentAdd));
+    }
+    SECTION("Comparison with null") {
+        REQUIRE_FALSE(add1.equals(nullptr));
+    }
 }
 
 TEST_CASE("Mult equals tests", "[Mult]") {
-Num n1(2), n2(5), n3(2), n4(5);
-Mult mult1(&n1, &n2);
-Mult mult2(&n3, &n4);
-Mult mult3(&n2, &n1);  // Different order
-Num differentNum(9);
-Mult differentMult(&n1, &differentNum);
-SECTION("Equal Mults") {
-REQUIRE(mult1.equals(&mult2));
-}
-SECTION("Equal Mults with different order") {
-REQUIRE(mult1.equals(&mult3));
-}
-SECTION("Not equal Mults") {
-REQUIRE_FALSE(mult1.equals(&differentMult));
-}
-SECTION("Comparison with null") {
-REQUIRE_FALSE(mult1.equals(nullptr));
-}
+    Num n1(2), n2(5), n3(2), n4(5);
+    Mult mult1(&n1, &n2);
+    Mult mult2(&n3, &n4);
+    Mult mult3(&n2, &n1);  // Different order
+    Num differentNum(9);
+    Mult differentMult(&n1, &differentNum);
+    SECTION("Equal Mults") {
+        REQUIRE(mult1.equals(&mult2));
+    }
+    SECTION("Equal Mults with different order") {
+        REQUIRE(mult1.equals(&mult3));
+    }
+    SECTION("Not equal Mults") {
+        REQUIRE_FALSE(mult1.equals(&differentMult));
+    }
+    SECTION("Comparison with null") {
+        REQUIRE_FALSE(mult1.equals(nullptr));
+    }
 }
 
 TEST_CASE("Var equals tests", "[Var]") {
@@ -354,31 +355,40 @@ TEST_CASE("_Let Tests"){
         CHECK(_Let("y", new Num(5), new Mult(new Var("y"), new Var("x"))).subst("x", new Num(3))->equals(new _Let("y", new Num(5), new Mult(new Var("y"), new Num(3)))));
         CHECK(_Let("z", new Mult(new Var("x"), new Num(2)), new Var("z")).subst("x", new Num(4))->equals(new _Let("z", new Mult(new Num(4), new Num(2)), new Var("z"))));
     }
+
+    SECTION("interp"){
+        CHECK((new _Let("var", new Num(0), new Add(new Var("var"), new Num(1))))->interp() == 1);
+        CHECK((new _Let("z", new Num(-10), new Mult(new Var("z"), new Num(5))))->interp() == -50);
+        CHECK((new _Let("!", new Num(0), new Mult(new Var("!"), new Num(0))))->interp() == 0);
+        CHECK((new _Let("x", new Num(5), new Add(new _Let("y", new Num(3), new Add(new Var("y"), new Num(2))), new Var("x"))))->interp() == 10);
+        CHECK((new _Let("x", new Num(10), new Add(new _Let("y", new Num(-15), new Add(new Var("y"), new Num(2))), new Var("x"))))->interp() == -3);
+    }
+
     SECTION("print and pretty_print") {
         //Let nested as right argument of parenthesized multiplication expression
         CHECK ( (new Mult(new Mult(new Num (2), new _Let("x", new Num(5), new Add(new Var("x") , new Num(1)) )), new Num(3)))->to_pp_string() == "(2 * _let x = 5\n"
-                                                                                                                                                        "      _in  x + 1) * 3");
+                                                                                                                                                 "      _in  x + 1) * 3");
         //Let nested to the left in add expression which is nested to the right within a multiplication expression
         CHECK((new Mult(new Num(5), new Add(new _Let("x", new Num(5), new Var("x")), new Num(1))))->to_pp_string() == "5 * ((_let x = 5\n"
-                                                                                                                             "       _in  x) + 1)");
+                                                                                                                      "       _in  x) + 1)");
         //Let in lhs of add
         CHECK ( (new Add(new _Let("x", new Num(2), new Add(new Var("x"), new Num(9))), new Num(4)))->to_pp_string() == "(_let x = 2\n"
-                                                                                                                              "  _in  x + 9) + 4");
+                                                                                                                       "  _in  x + 9) + 4");
         //Let in lhs of multiplication expression
         CHECK((new Mult(new _Let("x", new Num(5), new Add(new Var("x"), new Num(8))), new Num(3)))->to_pp_string() == "(_let x = 5\n"
-                                                                                                                             "  _in  x + 8) * 3");
+                                                                                                                      "  _in  x + 8) * 3");
         //Let nest as right argument of un-parenthesized multiplication expression
         CHECK((new Add (new Mult(new Num(4), new _Let("x", new Num(5), new Add(new Var("x"), new Num(1)))), new Num(9)))->to_pp_string() == "4 * (_let x = 5\n"
-                                                                                                                                                   "      _in  x + 1) + 9");
+                                                                                                                                            "      _in  x + 1) + 9");
         //Let nested to the left within let that is nested to the left within add
         CHECK ((new Add(new _Let("x", new Num(3), new _Let("y", new Num(3), new Add(new Var("y"), new Num(2))) ), new Var("x")))->to_pp_string() == "(_let x = 3\n"
-                                                                                                                                                                   "  _in  _let y = 3\n"
-                                                                                                                                                                   "       _in  y + 2) + x");
+                                                                                                                                                    "  _in  _let y = 3\n"
+                                                                                                                                                    "       _in  y + 2) + x");
         //Let nested in lhs of Add expression nested within body of let expression
         CHECK((new _Let("x", new Num(5), new Add(new _Let("y" , new Num(3), new Add(new Var("y"), new Num(2))), new Var("x"))))
                       ->to_pp_string() == "_let x = 5\n"
-                                         " _in  (_let y = 3\n"
-                                         "       _in  y + 2) + x");
+                                          " _in  (_let y = 3\n"
+                                          "       _in  y + 2) + x");
     }
 
 }
@@ -428,17 +438,17 @@ TEST_CASE("Nabil's given tests") {
         CHECK ((new Mult(new Mult(new Num(7), new Num(7)), new Add(new Num(9), new Num(2))))->to_pp_string() ==
                "(7 * 7) * (9 + 2)");
     }
-        SECTION("Nabil Given Test Assignment 5") {
-            std::string expected = "(2 * _let x = 5\n"
-                                   "      _in  x + 1) * 3";
-            Expr* expr = new Mult(
-                    new Mult(
-                            new Num(2),
-                            new _Let("x", new Num(5), new Add(new Var("x"), new Num(1)))
-                    ),
-                    new Num(3)
-            );
-            CHECK(expr->to_pp_string() == expected);
-            delete expr;
-        }
+    SECTION("Nabil Given Test Assignment 5") {
+        std::string expected = "(2 * _let x = 5\n"
+                               "      _in  x + 1) * 3";
+        Expr* expr = new Mult(
+                new Mult(
+                        new Num(2),
+                        new _Let("x", new Num(5), new Add(new Var("x"), new Num(1)))
+                ),
+                new Num(3)
+        );
+        CHECK(expr->to_pp_string() == expected);
+        delete expr;
     }
+}

@@ -35948,3 +35948,11 @@ using Catch::Detail::Approx;
 // end catch_reenable_warnings.h
 // end catch.hpp
 #endif // TWOBLUECUBES_SINGLE_INCLUDE_CATCH_HPP_INCLUDED
+//
+// Created by Samantha Pope on 2/15/24.
+//
+
+#ifndef NEWMSDSCRIPT_CATCH_H
+#define NEWMSDSCRIPT_CATCH_H
+
+#endif //NEWMSDSCRIPT_CATCH_H

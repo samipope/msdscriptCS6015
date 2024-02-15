@@ -1,3 +1,3 @@
-/Users/samanthapope/MSD/Github/CS6015/CS6015Project/cmake-build-debug/CMakeFiles/CS6015Project.dir
-/Users/samanthapope/MSD/Github/CS6015/CS6015Project/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/samanthapope/MSD/Github/CS6015/CS6015Project/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/samanthapope/msdscriptRepo/msdScript/cmake-build-debug/CMakeFiles/newMSDSCRIPT.dir
+/Users/samanthapope/msdscriptRepo/msdScript/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/samanthapope/msdscriptRepo/msdScript/cmake-build-debug/CMakeFiles/rebuild_cache.dir

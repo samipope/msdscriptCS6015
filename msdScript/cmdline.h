@@ -6,7 +6,7 @@
 #define CS6015PROJECT_CMDLINE_H
 
 
-    void useArgs(int argc, const char * argv[]);
+void useArgs(int argc, const char * argv[]);
 
 
 #endif //CS6015PROJECT_CMDLINE_H

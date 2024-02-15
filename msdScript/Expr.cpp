@@ -139,17 +139,14 @@ int Var::interp() {
  * @return int that the solution equals
  */
 int _Let::interp() {
-    // evaluate the head expression to get its integer value -> make a num
-    int val1 = head->interp();
-    Expr* tempValExpr = new Num(val1);
-    // substitute the variable in the body expression with the temporary value expression.
-    Expr* substitutedBody = body->subst(varName, tempValExpr);
-    // evaluate the substituted body expression.
-    int result = substitutedBody->interp();
-    // clean up the temporary expressions created for substitution.
-    delete tempValExpr;
-    delete substitutedBody;
-    return result;
+    //get the value of the name variable
+    int nameValue = head->interp();
+    //put the value into a Num object to use further
+    Num tempNum(nameValue);
+    //substitute the interp'd value into the body of the let expression
+    Expr* subBody = body->subst(varName, &tempNum);
+    //get the result by interp'ing the body with the value sub'd in
+    return subBody->interp();
 }
 
 /**
@@ -246,9 +243,9 @@ Expr* Var::subst(std::string stringInput, Expr *e) {
  * @return new _Let object
  */
 Expr *_Let::subst(std::string stringInput, Expr *e) {
-    Expr* newhead = head->subst(stringInput, e);
-    Expr* newbody = (stringInput == varName) ? body : body->subst(stringInput, e);
-    return new _Let(varName, newhead, newbody);
+    Expr* newHead = head->subst(stringInput, e);
+    Expr* newBody = (stringInput == varName) ? body : body->subst(stringInput, e);
+    return new _Let(varName, newHead, newBody);
 }
 
 /**
@@ -315,6 +312,8 @@ void Num::pretty_print(std::ostream &ot, precedence_t prec, std::streampos& last
  */
 void Add::pretty_print(std::ostream &ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) {
     bool needParens = prec > prec_add;
+
+    //add should always be true??
     if (needParens) ot << "(";
     lhs->pretty_print(ot, static_cast<precedence_t>(prec_add + 1),lastNewLinePos, false);
     ot << " + ";
@@ -377,7 +376,7 @@ void _Let::pretty_print(std::ostream &ot, precedence_t prec, std::streampos& las
 
 void Num::pretty_print_at(std::ostream &ot) {
     std::streampos lastNewLinePos =ot.tellp(); //initiate to 0
-     this-> pretty_print(ot,prec_none,lastNewLinePos, false);
+    this-> pretty_print(ot,prec_none,lastNewLinePos, false);
 }
 
 void Var::pretty_print_at(std::ostream &ot) {

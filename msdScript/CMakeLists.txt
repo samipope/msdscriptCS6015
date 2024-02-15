@@ -1,12 +1,10 @@
 cmake_minimum_required(VERSION 3.27)
-project(CS6015Project)
+project(newMSDSCRIPT)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(CS6015Project main.cpp
+add_executable(newMSDSCRIPT main.cpp
         cmdline.cpp
-        cmdline.h
         Expr.cpp
-        Expr.h
-        ExprTest.cpp
-        catch.h)
+        parse.cpp
+        ExprTest.cpp)
