@@ -4,13 +4,14 @@
 
 #include <iostream>
 #include <cstring> // For strcmp
-#define CATCH_CONFIG_RUNNER
 #include "cmdline.h"
 #include "catch.h"
 #include "parse.h"
 
-void useArgs(int argc, const char *argv[]) {
-    static bool testAlreadyPressed = false;
+run_mode_t useArgs(int argc, const char *argv[]) {
+    run_mode_t mode = do_nothing;
+ //   static bool testAlreadyPressed = false;
+ //TODO ask in code review if you need it ??
 
     for (int i = 1; i < argc; ++i) {
         //loop for all of it
@@ -24,24 +25,26 @@ void useArgs(int argc, const char *argv[]) {
 
             //have to control for if it is the first test that they wrote or not
         else if (strcmp(argv[i], "--test") == 0) {
-            if (!testAlreadyPressed) {
-                testAlreadyPressed = true;
-                if(Catch::Session().run(1,argv) !=0){
-                    //if catch returns a non-zero value, then kill the program
-                    exit(1);
-                }
+            mode = do_test;
+        }
 
-                std::cout << "Tests passed\n";
-            }
-                //--test flag already seen
-            else {
-                std::cerr << "Error: --test argument already seen\n";
-                exit(1);
-            }
-        } else {
+        else if(strcmp(argv[i], "--interp")==0){
+            mode = do_interp;
+        }
+
+        else if(strcmp(argv[i], "--print")==0){
+            mode = do_print;
+        }
+
+        else if (strcmp(argv[i],"--pretty_print")==0){
+            mode = do_pretty_print;
+        }
+
+        else {
             std::cerr << "Error: Unknown argument:  " << argv[i] << "\n";
             exit(1);
         }
 
     }
+    return mode;
 }
