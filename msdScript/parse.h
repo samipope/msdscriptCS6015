@@ -15,6 +15,6 @@ Expr *parse_expr(std::istream & inn);
 Expr *parse_str(const std::string &s);
 Expr *parse_variable(std::istream &in);
 Expr *parse_Let(std::istream & in);
-Expr* parse_term(std::istream &in);
+Expr* parse_multicand(std::istream &in);
 
 #endif //MSDSCRIPT_PARSE_H

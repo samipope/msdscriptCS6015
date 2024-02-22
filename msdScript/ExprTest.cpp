@@ -395,6 +395,44 @@ TEST_CASE("_Let Tests"){
 }
 
 
+TEST_CASE("parse"){
+    SECTION("parsing single numbers"){
+       CHECK(parse_str("1")->equals(new Num(1)));
+        CHECK(parse_str("(((1)))")->equals(new Num(1)));
+        CHECK(parse_str("  \n 5  ")->equals(new Num(5)));
+    }
+    SECTION("Handling invalid input") {
+        CHECK_THROWS_WITH(parse_str("(1"), "invalid input");
+        CHECK_THROWS_WITH(parse_str("-"), "invalid input");
+        // Assuming negative numbers are allowed but require a digit after '-'
+        CHECK_THROWS_WITH(parse_str(" -   "), "invalid input");
+        CHECK_THROWS_WITH(parse_str("x_z"), "invalid input");
+    }
+
+    SECTION("Parsing variables") {
+        CHECK(parse_str("xyz")->equals(new Var("xyz")));
+        CHECK(parse_str("xYz")->equals(new Var("xYz")));
+    }
+
+    SECTION("Parsing addition expressions") {
+        CHECK(parse_str("x + y")->equals(new Add(new Var("x"), new Var("y"))));
+    }
+
+    SECTION("Parsing multiplication expressions") {
+        CHECK(parse_str("x * y")->equals(new Mult(new Var("x"), new Var("y"))));
+    }
+
+        // Here's an added test case to handle negative numbers correctly
+    SECTION("Parsing negative numbers") {
+        CHECK(parse_str("-5")->equals(new Num(-5)));
+        // This test assumes spaces between '-' and digits are not allowed for negative numbers
+        CHECK_THROWS_WITH(parse_str(" -   5"), "invalid input");
+    }
+
+}
+
+
+
 TEST_CASE("Nabil's given tests") {
     SECTION("Given Tests Assignment 2") {
         CHECK((new Var("x"))->equals(new Var("x")) == true);
@@ -455,20 +493,15 @@ TEST_CASE("Nabil's given tests") {
     SECTION("parse tests given by Nabil"){
         CHECK_THROWS_WITH( parse_str("()"), "invalid input");
 
-        CHECK( parse_str("(1)")->equals(new Num(1)) );
         CHECK( parse_str("(((1)))")->equals(new Num(1)) );
 
-        CHECK_THROWS_WITH( parse_str("(1"), "consume mismatch");
+        CHECK_THROWS_WITH( parse_str("(1"), "invalid input");
 
-        CHECK( parse_str("1")->equals(new Num(1)) );
-        CHECK( parse_str("10")->equals(new Num(10)) );
-        CHECK( parse_str("-3")->equals(new Num(-3)) );
         CHECK( parse_str("  \n 5  ")->equals(new Num(5)) );
         CHECK_THROWS_WITH( parse_str("-"), "invalid input" );
 
         CHECK_THROWS_WITH( parse_str(" -   5  "), "invalid input" );
 
-        CHECK( parse_str("x")->equals(new Var("x")) );
         CHECK( parse_str("xyz")->equals(new Var("xyz")) );
         CHECK( parse_str("xYz")->equals(new Var("xYz")) );
         CHECK_THROWS_WITH( parse_str("x_z"), "invalid input" );

@@ -28,24 +28,26 @@ Expr *parse_num(std::istream &inn) {
 
     if (inn.peek() == '-') {
         negative = true;
-        consume (inn, '-');
-
+        consume(inn, '-');
     }
     while (1) {
         int c = inn.peek();
-        if (isdigit(c)){
+        if (isdigit(c)) {
             hasDigits = true;
             consume(inn, c);
-            n = n*10 + (c - '0');
-        }
-        else
+            n = n * 10 + (c - '0');
+        } else {
             break;
+        }
     }
-    if(negative && !hasDigits){
+    if (negative && !hasDigits) {
+        std::cout<< "throwing error at line 44 in parse num";
         throw std::runtime_error("invalid input");
     }
-    if (negative)
+    if (negative) {
         n = -n;
+    }
+    // Return a new Num instance with the parsed integer value
     return new Num(n);
 }
 
@@ -62,35 +64,33 @@ Expr *parse_expr(std::istream & in); //declaring so other methods can use it
 
 Expr* parse_factor(std::istream &in) {
     skip_whitespace(in);
-    int c = in.peek();
+    char c = in.peek();
 
     if (isdigit(c) || c == '-') {
-        // Parse a number, potentially negative
         return parse_num(in);
     } else if (isalpha(c)) {
-        // Parse a variable
         return parse_variable(in);
     } else if (c == '(') {
-        // Parse a parenthesized expression
         consume(in, '(');
-        Expr* e = parse_expr(in); // Recursively parse the expression inside the parentheses
-        consume(in, ')'); // Expect and consume the closing parenthesis
+        Expr* e = parse_expr(in);
+        consume(in, ')');
+        skip_whitespace(in); // Make sure to handle whitespace after closing parenthesis
         return e;
     } else {
+
+        std::cout<< "throwing error at line 79 in parse factor\n";
         throw std::runtime_error("invalid input");
     }
 }
-Expr* parse_term(std::istream &in) {
+Expr* parse_multicand(std::istream &in) {
     Expr* lhs = parse_factor(in); // Parse the left-hand side factor (a number, variable, or parenthesized expression)
     skip_whitespace(in);
     while (true) {
         int c = in.peek();
-        if (c == '*' || c == '/') {
+        if (c == '*') {
             consume(in, c);
             Expr* rhs = parse_factor(in); // Parse the right-hand side factor
-            if (c == '*') {
-                lhs = new Mult(lhs, rhs); // Combine lhs and rhs with multiplication
-            }
+            lhs = new Mult(lhs, rhs); // Combine lhs and rhs with multiplication
             skip_whitespace(in);
         } else {
             break;
@@ -139,30 +139,35 @@ Expr *parse_Let(std::istream & in){
     return new _Let(var_name, value, body);
 }
 
+
+
 Expr *parse_expr (std::istream & in) {
     skip_whitespace(in);
 
-    if (is_let_keyword(in)) { // Check for 'let' keyword
-        // Now we're sure it's a 'let' expression
-        return parse_Let(in); // Parse the let expression
+    if (is_let_keyword(in)) {
+        // Handle 'let' expressions specifically
+        return parse_Let(in);
     }
 
-    Expr* lhs = parse_term(in); // Start with a term to ensure multiplication/division are evaluated first
+    // Parse the first term which could be a single number, a variable, or a parenthesized expression
+    Expr* expr = parse_multicand(in);
 
+    skip_whitespace(in);
     while (true) {
-        int c = in.peek();
-        if (c == '+' || c == '-') {
-            consume(in, c);
-            Expr* rhs = parse_term(in); // Parse another term, ensuring multiplication precedence is respected
-            if (c == '+') {
-                lhs = new Add(lhs, rhs); // Combine lhs and rhs with addition
-            }
-            skip_whitespace(in);
-        } else {
-            break;
+        int nextChar = in.peek();
+        if (nextChar == '+') {
+            consume(in, nextChar); // Consume the '+'
+            Expr *rhs = parse_multicand(in); // Parse the right-hand side expression
+            expr = new Add(expr, rhs); // Create an Add expression
         }
+        else {
+            break; // No more operators, exit loop
+        }
+        skip_whitespace(in);
     }
-    return lhs;
+
+
+    return expr;
 }
 
 
@@ -171,7 +176,11 @@ Expr *parse_str(const std::string &s) {
     std::istringstream in(s);
     Expr *expr = parse_expr(in);
     skip_whitespace(in);
-    if (in.peek() != EOF) throw std::runtime_error("invalid input");
+    if (in.peek() != EOF) {
+        std::cout<< "throwing error at line 180 in parse str";
+
+        throw std::runtime_error("invalid input");
+    }
     return expr;
 }
 

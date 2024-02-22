@@ -7,4 +7,7 @@ add_executable(newMSDSCRIPT main.cpp
         cmdline.cpp
         Expr.cpp
         parse.cpp
-        ExprTest.cpp)
+        ExprTest.cpp
+        exec.h
+        exec.cpp
+        test_msdscript.cpp)
