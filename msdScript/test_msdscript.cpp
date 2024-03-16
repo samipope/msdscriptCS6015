@@ -2,15 +2,12 @@
 #include <cstdlib>
 #include <ctime>
 #include <string>
-#include "exec.h"
-#include "Expr.h"
-#include "parse.h"
 #include <vector>
 #include <sstream>
+#include "exec.h"
 
 std::string random_expr_string(int depth = 0);
 std::string random_variable();
-
 
 std::string random_expr_string(int depth) {
     int r = rand() % 10; // Adjust ratios as needed
@@ -33,85 +30,34 @@ std::string random_variable() {
     return std::string(1, 'a' + (rand() % 26));
 }
 
-ExecResult run_msdscript(const std::string& msdscriptPath, const std::string& mode, const std::string& expr) {
-    std::vector<const char*> args = {msdscriptPath.c_str(), mode.c_str(), NULL};
-    return exec_program(args.size() - 1, args.data(), expr);
-}
 
-
-void validate_interp(const std::string& msdscriptPath, const std::string& expr) {
-    // Run msdscript --interp
-    ExecResult result = run_msdscript(msdscriptPath, "--interp", expr);
-
-    // Generate expected outcome using your Expr class
-    std::istringstream expr_stream(expr);
-    Expr* expr_parsed = parse_expr(expr_stream);
-    std::string expectedOutcome = std::to_string(expr_parsed->interp());
-
-    // Compare expected outcome with actual outcome
-    if (result.out != expectedOutcome + "\n") { // Assuming msdscript adds a newline
-        std::cerr << "Mismatch in --interp mode for expression: " << expr << std::endl;
-        std::cerr << "Expected: " << expectedOutcome << ", Got: " << result.out;
-    }
-
-    delete expr_parsed;
-}
-
-void validate_pretty_print(const std::string& msdscriptPath, const std::string& expr) {
-    // Run msdscript --pretty-print
-    ExecResult result = run_msdscript(msdscriptPath, "--pretty-print", expr);
-
-    // Generate expected pretty-printed outcome
-    std::istringstream expr_stream(expr);
-    Expr* expr_parsed = parse_expr(expr_stream);
-    std::string expectedPrettyPrint = expr_parsed->to_pp_string();
-
-    // Compare expected outcome with actual outcome
-    if (result.out != expectedPrettyPrint) {
-        std::cerr << "Mismatch in --pretty-print mode for expression: " << expr << std::endl;
-        std::cerr << "Expected: " << expectedPrettyPrint << ", Got: " << result.out;
-    }
-
-    delete expr_parsed;
-}
-
-void validate_output(const std::string& msdscriptPath, const std::string& mode, const std::string& expr) {
-    if (mode == "--interp") {
-        validate_interp(msdscriptPath, expr);
-    } else if (mode == "--print") {
-        ExecResult result = run_msdscript(msdscriptPath, mode, expr);
-        if (result.out != expr + "\n") { // Assuming the output includes a newline
-            std::cerr << "Validation failed for mode " << mode << " with expression: " << expr << std::endl;
-            std::cerr << "Expected output: " << expr << "\n";
-            std::cerr << "Actual output: " << result.out;
-        } else {
-            std::cout << "Validation succeeded for mode " << mode << " with expression: " << expr << std::endl;
-        }
-    } else if (mode == "--pretty-print") {
-        validate_pretty_print(msdscriptPath, expr);
-    }
-
-    // No need to check for errors here as it's done within validate_interp and validate_pretty_print
-}
-
-
-
-
-int main(int argc, char** argv) {
-    if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " <msdscript_path>" << std::endl;
+int main(int argc, char* argv[]) {
+    if (argc != 3) {
+        std::cerr << "Usage: " << argv[0] << " <path_to_msdscript1> <path_to_msdscript2>" << std::endl;
         return 1;
     }
 
-    std::string msdscriptPath = argv[1];
-    std::string expr = random_expr_string();
+    srand(static_cast<unsigned int>(time(nullptr))); // Initialize random seed
 
-    // Example usage for validating outputs
-    validate_output(msdscriptPath, "--print", expr);
-    validate_output(msdscriptPath, "--pretty-print", expr);
-    validate_output(msdscriptPath, "--interp", expr);
+    // Use the paths provided by the user
+    std::string msdscriptPath = argv[1]; // Path to the first msdscript executable
+    std::string msdscript2Path = argv[2];
+    for (int i = 0; i < 100; ++i) {
+        std::string expr = random_expr_string();
+        std::cout << "Testing expression: " << expr << "\n";
 
-    // Further implementation...
+        ExecResult result2 = exec_program_wrapper(msdscript2Path, {"--interp"}, expr + "\n");
+        ExecResult result1 = exec_program_wrapper(msdscriptPath, {"--interp"}, expr + "\n");
+
+
+        if (result1.out != result2.out) {
+            std::cerr << "Mismatch found!\nExpression: " << expr << "\nResult1: " << result1.out << "\nResult2: "
+                      << result2.out << std::endl;}
+//        } else {
+//            std::cout << "Match: " << expr << " => " << result1.out << std::endl;
+//        }
+
+    }
 
     return 0;
 }

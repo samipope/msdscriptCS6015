@@ -5,6 +5,8 @@
 #include "Expr.h"
 #include <iostream>
 
+Expr *parse_expr(std::istream & in); //declaring so other methods can use it
+
 void consume(std::istream &in, int expect) {
     int c = in.get();
     if (c!=expect) {
@@ -41,7 +43,6 @@ Expr *parse_num(std::istream &inn) {
         }
     }
     if (negative && !hasDigits) {
-        std::cout<< "throwing error at line 44 in parse num";
         throw std::runtime_error("invalid input");
     }
     if (negative) {
@@ -60,7 +61,6 @@ Expr *parse_variable(std::istream &in) {
     return new Var(var_name);
 }
 
-Expr *parse_expr(std::istream & in); //declaring so other methods can use it
 
 Expr* parse_factor(std::istream &in) {
     skip_whitespace(in);
@@ -77,8 +77,6 @@ Expr* parse_factor(std::istream &in) {
         skip_whitespace(in); // Make sure to handle whitespace after closing parenthesis
         return e;
     } else {
-
-        std::cout<< "throwing error at line 79 in parse factor\n";
         throw std::runtime_error("invalid input");
     }
 }
@@ -104,13 +102,22 @@ bool is_let_keyword(std::istream &in) {
     std::streampos startPosition = in.tellg(); // Remember start position
 
     std::string potentialLet;
-    for (int i = 0; i < 3; ++i) {
-        if (!in) return false; // End of stream reached
-        potentialLet += (char)in.get();
-    }
 
-    if (potentialLet == "let" && (isspace(in.peek()) || in.peek() == EOF)) {
-        return true; // Correctly identified 'let' followed by a space or EOF
+    potentialLet += (char)in.get(); // Read first character
+
+    // If the first character is 'l', check the next two characters
+    if (potentialLet == "l") {
+        char nextChar = in.get(); // Attempt to read second character
+        if (nextChar == 'e') {
+            potentialLet += nextChar;
+            nextChar = in.get(); // Attempt to read third character
+            if (nextChar == 't') {
+                potentialLet += nextChar;
+                if (isspace(in.peek()) || in.peek() == EOF) {
+                    return true; // Correctly identified 'let' followed by a space or EOF
+                }
+            }
+        }
     }
 
     in.seekg(startPosition); // Rewind to start if 'let' not found
@@ -177,8 +184,6 @@ Expr *parse_str(const std::string &s) {
     Expr *expr = parse_expr(in);
     skip_whitespace(in);
     if (in.peek() != EOF) {
-        std::cout<< "throwing error at line 180 in parse str";
-
         throw std::runtime_error("invalid input");
     }
     return expr;

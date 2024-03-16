@@ -226,3 +226,16 @@ static void wait_child(pid_t pid, int &exit_code) {
     else
         throw std::runtime_error("unrecognized status from waitpid");
 }
+
+// This function adapts the interface for exec_program
+ExecResult exec_program_wrapper(const std::string& path, const std::vector<std::string>& args, const std::string& input) {
+    std::vector<const char*> argv;
+    argv.push_back(path.c_str()); // argv[0] should be the program name
+    for (const auto& arg : args) {
+        argv.push_back(arg.c_str());
+    }
+    argv.push_back(nullptr); // NULL-terminate the argument list
+
+    return exec_program(argv.size() - 1, argv.data(), input);
+}
+

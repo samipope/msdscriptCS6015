@@ -10,4 +10,6 @@ add_executable(newMSDSCRIPT main.cpp
         ExprTest.cpp
         exec.h
         exec.cpp
-        test_msdscript.cpp)
+        test_msdscript.cpp
+        val.h
+        val.cpp)

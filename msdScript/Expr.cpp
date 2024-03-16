@@ -1,5 +1,7 @@
 #include <sstream>
 #include "Expr.h"
+#include "val.h"
+
 
 /**
  * Constructs a Num object with a given integer value.
@@ -106,47 +108,41 @@ bool _Let::equals(Expr *e) {
  * Evaluates the numeric expression.
  * @return The integer value of the Num object.
  */
-int Num::interp() {
-    return this->val;
+Val* Num::interp() {
+    return new NumVal(val);
 }
 
 /**
  * Evaluates the addition expression.
  * @return The sum of the left and right expressions.
  */
-int Add::interp() {
-    return this->lhs->interp() + this->rhs->interp();
-}
+Val* Add::interp() {
+    return this->lhs->interp()->add_to(this->rhs->interp());}
 
 /**
  * Evaluates the multiplication expression.
  * @return The product of the left and right expressions.
  */
-int Mult::interp() {
-    return this->lhs->interp() * this->rhs->interp();
+Val* Mult::interp() {
+    return this->lhs->interp()->mult_with(this->rhs->interp());
 }
 
 /**
  * Evaluates the variable expression. Throws an error because variables cannot be directly evaluated.
  * @throw std::runtime_error when trying to evaluate a variable.
  */
-int Var::interp() {
+Val* Var::interp() {
     throw std::runtime_error("no value for variable");
+    return new NumVal(-1);
 }
 
 /**
  * Interprets the function by passing in the value the variable is set to and solving
  * @return int that the solution equals
  */
-int _Let::interp() {
-    //get the value of the name variable
-    int nameValue = head->interp();
-    //put the value into a Num object to use further
-    Num tempNum(nameValue);
-    //substitute the interp'd value into the body of the let expression
-    Expr* subBody = body->subst(varName, &tempNum);
-    //get the result by interp'ing the body with the value sub'd in
-    return subBody->interp();
+Val* _Let::interp() {
+    Val* rhsValue = head->interp();
+    return body->subst(varName, rhsValue->to_expr())->interp();
 }
 
 /**

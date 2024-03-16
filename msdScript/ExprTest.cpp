@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <iostream>
+#include "val.h"
 
 TEST_CASE("Num equals tests", "[Num]") {
     Num num1(5);
@@ -105,56 +106,31 @@ TEST_CASE("Var equals tests", "[Var]") {
 }
 
 TEST_CASE("interp tests", "All Expressions") {
+
     SECTION("Num interp") {
-        Num num1(5);
-        REQUIRE(num1.interp() == 5);
-        Num num2(-3);
-        REQUIRE(num2.interp() == -3);
-        Num num3(0);
-        REQUIRE(num3.interp() == 0);
-        Num num4(100);
-        REQUIRE(num4.interp() == 100);
-        Num num5(-50);
-        REQUIRE(num5.interp() == -50);
+        CHECK((new Num(3))->interp()->equals(new NumVal(3)));
+        CHECK((new Num(5))->interp()->equals(new NumVal(5)));
+        CHECK((new Num(-18))->interp()->equals(new NumVal(-18)));
+        CHECK((new Num(-3))->interp()->equals(new NumVal(-3)));
+        CHECK((new Num(0))->interp()->equals(new NumVal(0)));
 
     }
 
     SECTION("Add interp") {
-        Num num1(5);
-        Num num2(10);
-        Add add(&num1, &num2);
-        REQUIRE(add.interp() == 15);
-        Num num3(-5);
-        Add addNegative(&num1, &num3);  // 5 + (-5)
-        REQUIRE(addNegative.interp() == 0);
-        Num num4(0);
-        Add add3(&num2, &num4);  // 10 + 0
-        REQUIRE(add3.interp() == 10);
-        Num num5(-20);
-        Add add4(&num5, &num5);  // -20 + (-20)
-        REQUIRE(add4.interp() == -40);
-        Num num6(100);
-        Add add5(&num6, &num3);  // 100 + (-5)
-        REQUIRE(add5.interp() == 95);
+        CHECK((new Add(new Num(3), new Num(2)))->interp()->equals(new NumVal(5)));
+        CHECK((new Add(new Num(5), new Num(-4)))->interp()->equals(new NumVal(1)));
+        CHECK((new Add(new Num(-3), new Num(3)))->interp()->equals(new NumVal(0)));
+        CHECK((new Add(new Num(-3), new Num(-3)))->interp()->equals(new NumVal(-6)));
+        CHECK((new Add(new Num(0), new Num(10)))->interp()->equals(new NumVal(10)));
     }
 
+
     SECTION("Mult interp") {
-        Num num1(5);
-        Num num2(3);
-        Mult mult(&num1, &num2);
-        REQUIRE(mult.interp() == 15);
-        Num num3(-2);
-        Mult multNegative(&num1, &num3);  // 5 * (-2)
-        REQUIRE(multNegative.interp() == -10);
-        Num num4(0);
-        Mult mult3(&num2, &num4);  // 3 * 0
-        REQUIRE(mult3.interp() == 0);
-        Num num5(1);
-        Mult mult4(&num5, &num2);  // 1 * 3
-        REQUIRE(mult4.interp() == 3);
-        Num num6(-1);
-        Mult mult5(&num6, &num3);  // -1 * (-2)
-        REQUIRE(mult5.interp() == 2);
+        CHECK((new Mult(new Num(3), new Num(2)))->interp()->equals(new NumVal(6)));
+        CHECK((new Mult(new Num(5), new Num(4)))->interp()->equals(new NumVal(20)));
+        CHECK((new Mult(new Num(-3), new Num(6)))->interp()->equals(new NumVal(-18)));
+        CHECK((new Mult(new Num(-3), new Num(-3)))->interp()->equals(new NumVal(9)));
+        CHECK((new Mult(new Num(0), new Num(10)))->interp()->equals(new NumVal(0)));
     }
 
     SECTION("Var interp throws exception") {
@@ -358,11 +334,11 @@ TEST_CASE("_Let Tests"){
     }
 
     SECTION("interp"){
-        CHECK((new _Let("var", new Num(0), new Add(new Var("var"), new Num(1))))->interp() == 1);
-        CHECK((new _Let("z", new Num(-10), new Mult(new Var("z"), new Num(5))))->interp() == -50);
-        CHECK((new _Let("!", new Num(0), new Mult(new Var("!"), new Num(0))))->interp() == 0);
-        CHECK((new _Let("x", new Num(5), new Add(new _Let("y", new Num(3), new Add(new Var("y"), new Num(2))), new Var("x"))))->interp() == 10);
-        CHECK((new _Let("x", new Num(10), new Add(new _Let("y", new Num(-15), new Add(new Var("y"), new Num(2))), new Var("x"))))->interp() == -3);
+        CHECK((new _Let("var", new Num(0), new Add(new Var("var"), new Num(1))))->interp()->equals(new NumVal(1)));
+        CHECK((new _Let("z", new Num(-10), new Mult(new Var("z"), new Num(5))))->interp()->equals(new NumVal(-50)));
+        CHECK((new _Let("!", new Num(0), new Mult(new Var("!"), new Num(0))))->interp()->equals(new NumVal(0)));
+        CHECK((new _Let("x", new Num(5), new Add(new _Let("y", new Num(3), new Add(new Var("y"), new Num(2))), new Var("x"))))->interp()->equals(new NumVal(10)));
+        CHECK((new _Let("x", new Num(10), new Add(new _Let("y", new Num(-15), new Add(new Var("y"), new Num(2))), new Var("x"))))->interp()->equals(new NumVal(-3)));
     }
 
     SECTION("print and pretty_print") {
@@ -402,7 +378,7 @@ TEST_CASE("parse"){
         CHECK(parse_str("  \n 5  ")->equals(new Num(5)));
     }
     SECTION("Handling invalid input") {
-        CHECK_THROWS_WITH(parse_str("(1"), "invalid input");
+        CHECK_THROWS_WITH(parse_str("(-5"), "consume mismatch");
         CHECK_THROWS_WITH(parse_str("-"), "invalid input");
         // Assuming negative numbers are allowed but require a digit after '-'
         CHECK_THROWS_WITH(parse_str(" -   "), "invalid input");
@@ -444,9 +420,9 @@ TEST_CASE("Nabil's given tests") {
 
     SECTION("Given Tests Assignment 3") {
         CHECK((new Mult(new Num(3), new Num(2)))
-                      ->interp() == 6);
+                      ->interp()->equals(new NumVal(6)));
         CHECK((new Add(new Add(new Num(10), new Num(15)), new Add(new Num(20), new Num(20))))
-                      ->interp() == 65);
+                      ->interp()->equals(new NumVal(65)));
         CHECK_THROWS_WITH((new Var("x"))->interp(), "no value for variable");
         CHECK((new Add(new Var("x"), new Num(1)))->hasVariable() == true);
         CHECK((new Mult(new Num(2), new Num(1)))->hasVariable() == false);
@@ -495,7 +471,7 @@ TEST_CASE("Nabil's given tests") {
 
         CHECK( parse_str("(((1)))")->equals(new Num(1)) );
 
-        CHECK_THROWS_WITH( parse_str("(1"), "invalid input");
+        CHECK_THROWS_WITH( parse_str("(1"), "consume mismatch");
 
         CHECK( parse_str("  \n 5  ")->equals(new Num(5)) );
         CHECK_THROWS_WITH( parse_str("-"), "invalid input" );

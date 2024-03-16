@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <sstream>
 
-////add
+class Val;
 
 typedef enum {
     prec_none,   // = 0
@@ -18,7 +18,7 @@ class Expr {
 public:
     virtual ~Expr() = default; //virtual destructor - allows me to write tests using "delete" to test my deepCopy (prevents memory links)
     virtual bool equals(Expr *e) = 0;
-    virtual int interp() =0;
+    virtual Val* interp() =0;
     virtual bool hasVariable()=0;
     virtual Expr* subst(std::string stringInput, Expr* e)=0;
 
@@ -45,7 +45,7 @@ public:
     int val;
     Num(int val);
     bool equals(Expr *e) override;
-    int interp() override;
+    Val* interp() override;
     bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
     void print(std::ostream& stream) override;
@@ -61,7 +61,7 @@ public:
 
     Add(Expr *lhs, Expr *rhs);
     bool equals(Expr *e) override;
-    int interp() override;
+    Val* interp() override;
     bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
     void print(std::ostream& stream) override;
@@ -79,7 +79,7 @@ public:
 
     Mult(Expr *lhs, Expr *rhs);
     bool equals(Expr *e) override;
-    int interp() override;
+    Val* interp() override;
     bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
     void print(std::ostream& stream) override;
@@ -95,7 +95,7 @@ public:
     std::string var;
     Var(const std::string& varPassed);
     bool equals(Expr *e) override;
-    int interp() override;
+    Val* interp() override;
     bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
     void print(std::ostream& stream) override;
@@ -114,7 +114,7 @@ public:
     Expr* body;
 
     bool equals(Expr *e) override;
-    int interp() override;
+    Val* interp() override;
     bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
     void print(std::ostream& stream) override;

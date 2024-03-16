@@ -20,6 +20,6 @@ public:
 };
 
 extern ExecResult exec_program(int argc, const char * const *argv, std::string input);
-
+ExecResult exec_program_wrapper(const std::string& path, const std::vector<std::string>& args, const std::string& input);
 
 #endif //NEWMSDSCRIPT_EXEC_H

@@ -22,7 +22,7 @@ int main(int argc, const char *argv[]) {
             case do_print:
             case do_pretty_print: {
                 std::string line;
-                std::cout << "Enter expression: ";
+               // std::cout << "Enter expression: ";
                 if (std::getline(std::cin, line)) {
                     std::istringstream expr_stream(line);
                     Expr* expr = parse_expr(expr_stream);

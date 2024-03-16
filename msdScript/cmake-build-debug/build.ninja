@@ -91,6 +91,12 @@ build CMakeFiles/newMSDSCRIPT.dir/test_msdscript.cpp.o: CXX_COMPILER__newMSDSCRI
   OBJECT_DIR = CMakeFiles/newMSDSCRIPT.dir
   OBJECT_FILE_DIR = CMakeFiles/newMSDSCRIPT.dir
 
+build CMakeFiles/newMSDSCRIPT.dir/val.cpp.o: CXX_COMPILER__newMSDSCRIPT_unscanned_Debug /Users/samanthapope/msdscriptRepo/msdScript/val.cpp || cmake_object_order_depends_target_newMSDSCRIPT
+  DEP_FILE = CMakeFiles/newMSDSCRIPT.dir/val.cpp.o.d
+  FLAGS = -g -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk -fcolor-diagnostics
+  OBJECT_DIR = CMakeFiles/newMSDSCRIPT.dir
+  OBJECT_FILE_DIR = CMakeFiles/newMSDSCRIPT.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target newMSDSCRIPT
@@ -99,7 +105,7 @@ build CMakeFiles/newMSDSCRIPT.dir/test_msdscript.cpp.o: CXX_COMPILER__newMSDSCRI
 #############################################
 # Link the executable newMSDSCRIPT
 
-build newMSDSCRIPT: CXX_EXECUTABLE_LINKER__newMSDSCRIPT_Debug CMakeFiles/newMSDSCRIPT.dir/main.cpp.o CMakeFiles/newMSDSCRIPT.dir/cmdline.cpp.o CMakeFiles/newMSDSCRIPT.dir/Expr.cpp.o CMakeFiles/newMSDSCRIPT.dir/parse.cpp.o CMakeFiles/newMSDSCRIPT.dir/ExprTest.cpp.o CMakeFiles/newMSDSCRIPT.dir/exec.cpp.o CMakeFiles/newMSDSCRIPT.dir/test_msdscript.cpp.o
+build newMSDSCRIPT: CXX_EXECUTABLE_LINKER__newMSDSCRIPT_Debug CMakeFiles/newMSDSCRIPT.dir/main.cpp.o CMakeFiles/newMSDSCRIPT.dir/cmdline.cpp.o CMakeFiles/newMSDSCRIPT.dir/Expr.cpp.o CMakeFiles/newMSDSCRIPT.dir/parse.cpp.o CMakeFiles/newMSDSCRIPT.dir/ExprTest.cpp.o CMakeFiles/newMSDSCRIPT.dir/exec.cpp.o CMakeFiles/newMSDSCRIPT.dir/test_msdscript.cpp.o CMakeFiles/newMSDSCRIPT.dir/val.cpp.o
   FLAGS = -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk
   OBJECT_DIR = CMakeFiles/newMSDSCRIPT.dir
   POST_BUILD = :

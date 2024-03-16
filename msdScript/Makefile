@@ -10,12 +10,12 @@ CXXFLAGS = -std=c++11 -Wall
 INCLUDES =
 
 # Define source (.cpp) and header (.hpp) files for the main target
-SRCS_MAIN = main.cpp cmdline.cpp Expr.cpp ExprTest.cpp parse.cpp exec.cpp # Add exec.cpp if it exists
-HEADERS_MAIN = cmdline.h Expr.h catch.h parse.h exec.h # Add exec.h if it exists
+SRCS_MAIN = main.cpp cmdline.cpp Expr.cpp ExprTest.cpp parse.cpp exec.cpp val.cpp # Add exec.cpp if it exists
+HEADERS_MAIN = cmdline.h Expr.h catch.h parse.h exec.h val.h # Add exec.h if it exists
 
 # Define source files for the test_msdscript target
-SRCS_TEST_MSDSCRIPT = test_msdscript.cpp parse.cpp exec.cpp Expr.cpp# Add any source files test_msdscript depends on
-HEADERS_TEST_MSDSCRIPT = parse.h exec.h Expr.h# Add any header files test_msdscript depends on
+SRCS_TEST_MSDSCRIPT = test_msdscript.cpp parse.cpp exec.cpp Expr.cpp val.cpp# Add any source files test_msdscript depends on
+HEADERS_TEST_MSDSCRIPT = parse.h exec.h Expr.h val.h# Add any header files test_msdscript depends on
 
 # Define the target executables
 TARGET_MAIN = msdscript
