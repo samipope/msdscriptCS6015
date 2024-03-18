@@ -1,10 +1,12 @@
 #define CATCH_CONFIG_RUNNER
 
 #include <iostream>
+#include <sstream> // Make sure to include this for std::istringstream
 #include "cmdline.h"
 #include "parse.h"
 #include "Expr.h"
 #include "catch.h"
+#include "val.h"
 
 int main(int argc, const char *argv[]) {
     try {
@@ -22,19 +24,21 @@ int main(int argc, const char *argv[]) {
             case do_print:
             case do_pretty_print: {
                 std::string line;
-               // std::cout << "Enter expression: ";
                 if (std::getline(std::cin, line)) {
                     std::istringstream expr_stream(line);
                     Expr* expr = parse_expr(expr_stream);
                     if (mode == do_interp) {
-                        std::cout << expr->interp() << std::endl;
+                        Val* result = expr->interp(); // Interpret the expression
+                        std::string resultStr = result->to_string(); // Convert the result to a string
+                        std::cout << resultStr << std::endl; // Print the result string
+                        delete result; // Clean up
                     } else if (mode == do_print) {
                         expr->print(std::cout);
                         std::cout << std::endl;
                     } else if (mode == do_pretty_print) {
                         std::cout << expr->to_pp_string() << std::endl;
                     }
-                    delete expr;
+                    delete expr; // Clean up
                 } else {
                     std::cerr << "No input received.\n";
                     return 1;

@@ -121,8 +121,48 @@ public:
     void pretty_print_at(std::ostream &ot) override;
     _Let(std::string varName, Expr* expr1, Expr* expr2);
     void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
-
 };
 
+
+class BoolExpr: public Expr{
+    bool value;
+    BoolExpr(bool value);
+    bool equals(Expr *e) override;
+    Val* interp() override;
+    bool hasVariable() override;
+    Expr* subst(std::string stringInput, Expr* e) override;
+    void print(std::ostream& stream) override;
+    void pretty_print_at(std::ostream &ot) override;
+    void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
+};
+
+
+class IfExpr: public Expr{
+    Expr* condition;
+    Expr* thenExpr;
+    Expr* elseExpr;
+
+    IfExpr(Expr* condition, Expr* thenExpr, Expr* elseExpr);
+    bool equals(Expr *e) override;
+    Val* interp() override;
+    bool hasVariable() override;
+    Expr* subst(std::string stringInput, Expr* e) override;
+    void print(std::ostream& stream) override;
+    void pretty_print_at(std::ostream &ot) override;
+    void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
+};
+
+class EqExpr: public Expr{
+    Expr* lhs;
+    Expr* rhs;
+    EqExpr(Expr* lhs, Expr* rhs);
+    bool equals(Expr *e) override;
+    Val* interp() override;
+    bool hasVariable() override;
+    Expr* subst(std::string stringInput, Expr* e) override;
+    void print(std::ostream& stream) override;
+    void pretty_print_at(std::ostream &ot) override;
+    void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
+};
 
 #endif //CS6015PROJECT_EXPR_H

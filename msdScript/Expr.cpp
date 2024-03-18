@@ -398,3 +398,156 @@ void _Let::pretty_print_at(std::ostream &ot) {
     std::streampos lastNewLinePos =ot.tellp();
     this-> pretty_print(ot,prec_none,lastNewLinePos, false);
 }
+
+
+ //-----------------------EqExpr--------------------------
+/**
+ * Constructor for EqExpr
+ * @param lhs
+ * @param rhs
+ */
+EqExpr::EqExpr(Expr *lhs, Expr *rhs) {
+    this->rhs = rhs;
+    this->lhs =lhs;
+}
+
+bool EqExpr::equals(Expr *e) {
+    EqExpr* eq = dynamic_cast<EqExpr*>(e);
+    if (eq == nullptr) return false;
+    return lhs->equals(eq->lhs) && rhs->equals(eq->rhs);
+}
+
+Val *EqExpr::interp() {
+    Val* leftVal = lhs->interp();
+    Val* rightVal = rhs->interp();
+    bool result = leftVal->equals(rightVal);
+    delete leftVal;
+    delete rightVal;
+    return new BoolVal(result);
+}
+
+bool EqExpr::hasVariable() {
+    return lhs->hasVariable() || rhs->hasVariable();
+}
+
+Expr *EqExpr::subst(std::string stringInput, Expr *e) {
+    return new EqExpr(lhs->subst(stringInput,e), rhs->subst(stringInput, e));
+}
+
+void EqExpr::print(std::ostream &stream) {
+    lhs->print(stream);
+    stream << " == ";
+    rhs->print(stream);
+}
+
+void EqExpr::pretty_print_at(std::ostream &ot) {
+    std::streampos lastNewLinePos =ot.tellp(); //TODO what is precedence??
+    this-> pretty_print(ot,prec_none,lastNewLinePos, false);
+}
+
+void EqExpr::pretty_print(std::ostream &ot, precedence_t prec, std::streampos &lastNewLinePos, bool paren) {
+    if (paren) ot << "(";
+    lhs->pretty_print(ot, prec, lastNewLinePos, false);
+    ot << " == ";
+    rhs->pretty_print(ot, prec, lastNewLinePos, false);
+    if (paren) ot << ")";
+}
+
+
+//----------------------IfExpr-----------------------
+
+IfExpr::IfExpr(Expr *condition, Expr *thenExpr, Expr *elseExpr) {
+    this->condition=condition;
+    this->thenExpr=thenExpr;
+    this->elseExpr=elseExpr;
+}
+
+bool IfExpr::equals(Expr *e) {
+    IfExpr* other = dynamic_cast<IfExpr*>(e);
+    return other != nullptr
+           && condition->equals(other->condition)
+           && thenExpr->equals(other->thenExpr)
+           && elseExpr->equals(other->elseExpr);
+}
+
+Val *IfExpr::interp() {
+    Val* condVal = condition->interp();
+    BoolVal* boolVal = dynamic_cast<BoolVal*>(condVal);
+    if (boolVal == nullptr) {
+        throw std::runtime_error("Condition expression did not evaluate to a boolean");
+    }
+    Val* result = boolVal->is_true() ? thenExpr->interp() : elseExpr->interp();
+    delete condVal;
+    return result;
+}
+
+bool IfExpr::hasVariable() {
+    return condition->hasVariable() || thenExpr->hasVariable() || elseExpr->hasVariable();
+}
+
+Expr *IfExpr::subst(std::string stringInput, Expr *e) {
+    return new IfExpr(condition->subst(stringInput, e),
+                      thenExpr->subst(stringInput, e),
+                      elseExpr->subst(stringInput, e));
+}
+
+
+void IfExpr::print(std::ostream &stream) {
+    stream << "_if ";
+    condition->print(stream);
+    stream << " _then ";
+    thenExpr->print(stream);
+    stream << " _else ";
+    elseExpr->print(stream);
+}
+
+void IfExpr::pretty_print_at(std::ostream &ot) {
+    std::streampos lastNewLinePos =ot.tellp(); //TODO what is precedence??
+    this-> pretty_print(ot,prec_none,lastNewLinePos, false);
+}
+
+void IfExpr::pretty_print(std::ostream &ot, precedence_t prec, std::streampos &lastNewLinePos, bool paren) {
+    if (paren) ot << "(";
+    ot << "_if ";
+    condition->pretty_print(ot, prec, lastNewLinePos, false);
+    ot << " _then ";
+    thenExpr->pretty_print(ot, prec, lastNewLinePos, false);
+    ot << " _else ";
+    elseExpr->pretty_print(ot, prec, lastNewLinePos, false);
+    if (paren) ot << ")";
+}
+
+//------------BoolExpr---------------------
+
+BoolExpr::BoolExpr(bool value) {
+    this->value =value;
+}
+
+bool BoolExpr::equals(Expr *e) {
+    BoolExpr* be = dynamic_cast<BoolExpr*>(e);
+    return be != nullptr && value == be->value;
+}
+
+Val *BoolExpr::interp() {
+    return new BoolVal(value);
+}
+
+bool BoolExpr::hasVariable() {
+    return false;
+}
+
+Expr *BoolExpr::subst(std::string stringInput, Expr *e) {
+    return new BoolExpr(value);
+}
+
+void BoolExpr::print(std::ostream &stream) {
+    stream << (value ? "_true" : "_false");
+}
+
+void BoolExpr::pretty_print(std::ostream &ot, precedence_t prec, std::streampos &lastNewLinePos, bool paren) {
+    print(ot);
+}
+
+void BoolExpr::pretty_print_at(std::ostream &ot) {
+    print(ot);
+}

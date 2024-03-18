@@ -5,11 +5,7 @@
 #include "val.h"
 #include "Expr.h"
 
-string Val::to_string(){
-    stringstream stream("");
-    this->print(stream);
-    return stream.str();
-}
+
 
 NumVal::NumVal(int i) {
     numVal = i;
@@ -43,5 +39,39 @@ Val* NumVal::mult_with(Val *other_val) {
 }
 
 void NumVal::print(std::ostream &ostream) {
-    ostream <<::to_string(numVal);
+    ostream << numVal;
+}
+
+bool NumVal::is_true() {
+    throw std::runtime_error("cannot use is_true on NumVal");
+}
+
+BoolVal::BoolVal(bool passedBool){
+    value = passedBool;
+}
+
+bool BoolVal::equals(Val *v) {
+    BoolVal* bv = dynamic_cast<BoolVal*>(v);
+    return bv != nullptr && value == bv->value;
+}
+
+Expr *BoolVal::to_expr() {
+    //don't think this will be necessary for successful implementation?
+    throw std::runtime_error("Not implemented");
+}
+
+Val *BoolVal::add_to(Val *other_val) {
+    throw std::runtime_error("Cannot add boolean values");
+}
+
+Val *BoolVal::mult_with(Val *other_val) {
+    throw std::runtime_error("Cannot multiply boolean values");
+}
+
+void BoolVal::print(std::ostream &ostream) {
+    ostream << (value ? "_true" : "_false");
+}
+
+bool BoolVal::is_true() {
+    return value;
 }
