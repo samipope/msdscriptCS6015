@@ -8,6 +8,7 @@
 
 class Val;
 
+//TODO do i need an equals precedent??
 typedef enum {
     prec_none,   // = 0
     prec_add,    // = 1
@@ -126,14 +127,21 @@ public:
 
 class BoolExpr: public Expr{
     bool value;
-    BoolExpr(bool value);
-    bool equals(Expr *e) override;
-    Val* interp() override;
+
     bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
-    void print(std::ostream& stream) override;
+
     void pretty_print_at(std::ostream &ot) override;
     void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
+
+public:
+    BoolExpr(bool value);
+
+    Val* interp() override;
+
+    void print(std::ostream& stream) override;
+
+    bool equals(Expr *e) override;
 };
 
 
@@ -142,27 +150,40 @@ class IfExpr: public Expr{
     Expr* thenExpr;
     Expr* elseExpr;
 
-    IfExpr(Expr* condition, Expr* thenExpr, Expr* elseExpr);
-    bool equals(Expr *e) override;
-    Val* interp() override;
     bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
-    void print(std::ostream& stream) override;
+
     void pretty_print_at(std::ostream &ot) override;
     void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
+
+public:
+    IfExpr(Expr* condition, Expr* thenExpr, Expr* elseExpr);
+
+    bool equals(Expr *e) override;
+
+    Val* interp() override;
+
+    void print(std::ostream& stream) override;
 };
 
 class EqExpr: public Expr{
     Expr* lhs;
     Expr* rhs;
-    EqExpr(Expr* lhs, Expr* rhs);
-    bool equals(Expr *e) override;
-    Val* interp() override;
+
     bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
-    void print(std::ostream& stream) override;
+
     void pretty_print_at(std::ostream &ot) override;
     void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
+
+public:
+    EqExpr(Expr* lhs, Expr* rhs);
+
+    Val* interp() override;
+
+    bool equals(Expr *e) override;
+
+    void print(std::ostream& stream) override;
 };
 
 #endif //CS6015PROJECT_EXPR_H

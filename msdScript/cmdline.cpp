@@ -11,7 +11,6 @@
 run_mode_t useArgs(int argc, const char *argv[]) {
     run_mode_t mode = do_nothing;
  //   static bool testAlreadyPressed = false;
- //TODO ask in code review if you need it ??
 
     for (int i = 1; i < argc; ++i) {
         //loop for all of it

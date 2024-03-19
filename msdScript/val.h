@@ -34,7 +34,7 @@ public:
 class NumVal : public Val{
 public:
     int numVal;
-    NumVal(int i);
+    explicit NumVal(int i);
     bool is_true() override;
     Expr* to_expr() override;
     bool equals (Val *v) override;
@@ -46,8 +46,8 @@ public:
 class BoolVal : public Val{
 public:
     bool value;
-   bool is_true() override;
-    BoolVal(bool passedBool);
+    bool is_true() override;
+    explicit BoolVal(bool passedBool);
     Expr* to_expr() override;
     bool equals (Val *v) override;
     Val* add_to(Val* other_val) override;

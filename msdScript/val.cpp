@@ -27,14 +27,14 @@ bool NumVal::equals(Val *v) {
 Val* NumVal::add_to(Val *other_val) {
     //Insert implementation
     NumVal *other_num = dynamic_cast<NumVal*>(other_val);
-    if (other_num == NULL) throw runtime_error("You can't add a non-number!");
+    if (other_num == nullptr) throw runtime_error("You can't add a non-number!");
     return new NumVal(other_num->numVal + this->numVal);
 }
 
 Val* NumVal::mult_with(Val *other_val) {
     //Insert implementation
     NumVal *other_num = dynamic_cast<NumVal*>(other_val);
-    if(other_num == NULL) throw runtime_error("You can't mult a non-number!");
+    if(other_num == nullptr) throw runtime_error("You can't mult a non-number!");
     return new NumVal(this->numVal * other_num->numVal);
 }
 
@@ -56,8 +56,7 @@ bool BoolVal::equals(Val *v) {
 }
 
 Expr *BoolVal::to_expr() {
-    //don't think this will be necessary for successful implementation?
-    throw std::runtime_error("Not implemented");
+    return new BoolExpr(this->value);
 }
 
 Val *BoolVal::add_to(Val *other_val) {
@@ -69,7 +68,7 @@ Val *BoolVal::mult_with(Val *other_val) {
 }
 
 void BoolVal::print(std::ostream &ostream) {
-    ostream << (value ? "_true" : "_false");
+    ostream <<:: to_string(value);
 }
 
 bool BoolVal::is_true() {

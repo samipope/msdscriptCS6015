@@ -442,14 +442,14 @@ void EqExpr::print(std::ostream &stream) {
 
 void EqExpr::pretty_print_at(std::ostream &ot) {
     std::streampos lastNewLinePos =ot.tellp(); //TODO what is precedence??
-    this-> pretty_print(ot,prec_none,lastNewLinePos, false);
+    this-> pretty_print(ot,prec_add,lastNewLinePos, false);
 }
 
 void EqExpr::pretty_print(std::ostream &ot, precedence_t prec, std::streampos &lastNewLinePos, bool paren) {
     if (paren) ot << "(";
-    lhs->pretty_print(ot, prec, lastNewLinePos, false);
+    lhs->pretty_print(ot, prec_add, lastNewLinePos, false);
     ot << " == ";
-    rhs->pretty_print(ot, prec, lastNewLinePos, false);
+    rhs->pretty_print(ot, prec_add, lastNewLinePos, false);
     if (paren) ot << ")";
 }
 
@@ -507,14 +507,17 @@ void IfExpr::pretty_print_at(std::ostream &ot) {
 }
 
 void IfExpr::pretty_print(std::ostream &ot, precedence_t prec, std::streampos &lastNewLinePos, bool paren) {
-    if (paren) ot << "(";
     ot << "_if ";
-    condition->pretty_print(ot, prec, lastNewLinePos, false);
-    ot << " _then ";
-    thenExpr->pretty_print(ot, prec, lastNewLinePos, false);
-    ot << " _else ";
-    elseExpr->pretty_print(ot, prec, lastNewLinePos, false);
-    if (paren) ot << ")";
+    condition->pretty_print(ot, prec_none, lastNewLinePos, false);
+    ot << "\n";
+    lastNewLinePos = ot.tellp();
+    ot << "_then ";
+    thenExpr->pretty_print(ot, prec_none, lastNewLinePos, false);
+    ot << "\n";
+    ot << "_else ";
+    lastNewLinePos = ot.tellp();
+    elseExpr->pretty_print(ot, prec_none, lastNewLinePos, false);
+    ot << "\n";
 }
 
 //------------BoolExpr---------------------

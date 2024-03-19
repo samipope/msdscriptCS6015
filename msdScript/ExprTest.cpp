@@ -378,7 +378,7 @@ TEST_CASE("parse"){
         CHECK(parse_str("  \n 5  ")->equals(new Num(5)));
     }
     SECTION("Handling invalid input") {
-        CHECK_THROWS_WITH(parse_str("(-5"), "consume mismatch");
+        CHECK_THROWS_WITH(parse_str("(-5"), "missing closing parentheses");
         CHECK_THROWS_WITH(parse_str("-"), "invalid input");
         // Assuming negative numbers are allowed but require a digit after '-'
         CHECK_THROWS_WITH(parse_str(" -   "), "invalid input");
@@ -407,6 +407,209 @@ TEST_CASE("parse"){
 
 }
 
+TEST_CASE("NumVal"){
+    //NumVal constructor is taken care of in other interp clasess
+    SECTION("equals method") {
+        NumVal a(10), b(10), c(5);
+        Val* nonNumVal = reinterpret_cast<Val*>(&c); // Simulating a different type of Val
+        CHECK(a.equals(&b) == true);
+        CHECK(a.equals(&c) == false);
+        CHECK(a.equals(nonNumVal) == false);
+    }
+
+    SECTION("add_to method") {
+        NumVal a(10), b(5);
+        CHECK(dynamic_cast<NumVal*>(a.add_to(&b))->numVal == 15);
+    }
+
+    SECTION("mult_with method") {
+        NumVal a(10), b(2);
+        CHECK(dynamic_cast<NumVal*>(a.mult_with(&b))->numVal == 20);
+    }
+
+    SECTION("print method") {
+        NumVal a(10);
+        stringstream ss;
+        a.print(ss);
+        CHECK(ss.str() == "10");
+    }
+
+    SECTION("is_true method") {
+        NumVal a(10);
+        CHECK_THROWS_AS(a.is_true(), runtime_error);
+    }
+
+
+}
+
+
+TEST_CASE("BoolVal") {
+    SECTION("constructor/print") {
+        BoolVal trueVal(true);
+        BoolVal falseVal(false);
+        ostringstream outputTrue, outputFalse;
+
+        trueVal.print(outputTrue);
+        falseVal.print(outputFalse);
+
+        CHECK(outputTrue.str() == "1");
+        CHECK(outputFalse.str() == "0");
+    }
+
+    SECTION("to_expr"){
+        BoolVal boolVal(true);
+        Expr* expr = boolVal.to_expr();
+        ostringstream output;
+        expr->print(output);
+        CHECK(output.str() == "_true");
+
+        BoolVal boolVal2(false);
+        Expr* expr2 = boolVal2.to_expr();
+        ostringstream output2;
+        expr2->print(output2);
+        CHECK(output2.str() == "_false");
+    }
+
+    SECTION("equals") {
+        CHECK( (new BoolVal(true))->equals(new BoolVal(true))==true );
+        CHECK( (new BoolVal(true))->equals(new BoolVal(false))==false );
+    }
+
+    //TODO add tests for add_to with positive and negative numbers
+    SECTION("add_to") {
+        BoolVal boolVal(true);
+        BoolVal anotherBoolVal(false);
+
+        REQUIRE_THROWS_AS(boolVal.add_to(&anotherBoolVal), runtime_error);
+    }
+
+    SECTION("mult_with") {
+        REQUIRE_THROWS_AS((new BoolVal(true))->mult_with(new BoolVal(false)), runtime_error);
+    }
+}
+
+TEST_CASE("Testing BoolExpr") {
+    SECTION("constructor, print"){
+        BoolExpr trueExpr(true);
+        BoolExpr falseExpr(false);
+        ostringstream outputTrue, outputFalse;
+        trueExpr.print(outputTrue);
+        falseExpr.print(outputFalse);
+        CHECK( outputTrue.str() == "_true" );
+        CHECK( outputFalse.str() == "_false" );
+
+    }
+
+    SECTION("equals") {
+        CHECK( (new BoolExpr(true))->equals(new BoolExpr(true)) );
+        CHECK_FALSE( (new BoolExpr(true))->equals(new BoolExpr(false)) );
+    }
+
+    SECTION("interp") {
+        BoolExpr boolExpr(true);
+        Val* val = boolExpr.interp();
+        BoolVal* boolVal = dynamic_cast<BoolVal*>(val);
+        REQUIRE(boolVal != nullptr);
+        ostringstream output;
+        boolVal->print(output);
+        REQUIRE(output.str() == "1");
+
+    }
+
+}
+
+TEST_CASE("Testing EqExpr") {
+    Var* varX = new Var("x");
+    Num* num1 = new Num(1);
+    EqExpr eqExpr(varX, num1);
+    SECTION("constructor and print") {
+        ostringstream output;
+        eqExpr.print(output);
+        CHECK(output.str() == "x == 1");
+    }
+
+    SECTION("equals") {
+        EqExpr similarExpr(varX, num1);
+        EqExpr differentExpr(varX, new Num(2));
+        CHECK(eqExpr.equals(&similarExpr));
+        CHECK_FALSE(eqExpr.equals(&differentExpr));
+    }
+
+    SECTION("interp") {
+        CHECK_THROWS_AS(eqExpr.interp(), std::runtime_error);
+    }
+
+}
+
+TEST_CASE("Testing IfExpr") {
+    Var* varX = new Var("x");
+    Num* num1 = new Num(1);
+    Num* num2 = new Num(2);
+    EqExpr* condition = new EqExpr(varX, num1);
+    IfExpr ifExpr(condition, num1, num2);
+
+    SECTION("constructor, print") {
+        ostringstream output;
+        ifExpr.print(output);
+        CHECK(output.str() == "_if x == 1 _then 1 _else 2");
+    }
+
+    SECTION("equals") {
+        IfExpr similarExpr(condition, num1, num2);
+        IfExpr differentExpr(new EqExpr(varX, num2), num1, num2);
+        CHECK(ifExpr.equals(&similarExpr));
+        CHECK_FALSE(ifExpr.equals(&differentExpr));
+    }
+
+    SECTION("interp") {
+        CHECK_THROWS_AS(ifExpr.interp(), std::runtime_error);
+    }
+
+    SECTION("pretty_print"){
+
+        CHECK( (new IfExpr(new EqExpr(new Var("x"), new Num(1)), new Num(1), new Num(2)))->to_pp_string()
+               ==
+               "_if x == 1\n"
+               "_then 1\n"
+               "_else 2\n" );
+    }
+
+    CHECK( (new IfExpr(new EqExpr(new Var("x"), new Var("x")), new Num(100), new Num(200)))->to_pp_string()
+           ==
+           "_if x == x\n"
+           "_then 100\n"
+           "_else 200\n" );
+
+}
+
+TEST_CASE("Parse if and bool"){
+
+    SECTION("Parsing IfExpr") {
+        CHECK(parse_str(("_if _true _then 4 _else 5"))->equals(
+                new IfExpr(new BoolExpr(true), new Num(4), new Num(5))));
+        CHECK(parse_str(("_if _false _then 4 _else 5"))->equals(
+                new IfExpr(new BoolExpr(false), new Num(4), new Num(5))));
+        CHECK(parse_str(("_true"))->equals(new BoolExpr(true)));
+        CHECK(parse_str(("_false"))->equals(new BoolExpr(false)));
+    }
+
+    SECTION("Parsing EqExpr") {
+        CHECK( parse_str("1 == 2")->interp()->equals(new BoolVal(false)) );
+        CHECK( parse_str("2 == 2")->interp()->equals(new BoolVal(true)) );
+        CHECK((((parse_str("_if 1 == 2 _then 3 _else 4"))->interp())->to_string()) == "4");
+        CHECK((parse_str("1 + 2 == 3 + 0"))->interp()->equals(new BoolVal(true)));
+
+        CHECK( parse_str("_if 1==1 _then 1 _else 2") ->interp() ->equals(new NumVal(1)));
+    }
+
+    SECTION("If Expr Interp") {
+        CHECK( parse_str("_if 1==1 _then 1 _else 2") ->interp() ->equals(new NumVal(1)));
+        CHECK( parse_str("_if 10==12 _then 7 _else 5") ->interp() ->equals(new NumVal(5)));
+        CHECK( parse_str("_if 0==0 _then 14 _else 7") ->interp() ->equals(new NumVal(14)));
+        CHECK( parse_str("_if -4==-5 _then 6 _else 8") ->interp() ->equals(new NumVal(8)));
+    }
+
+}
 
 
 TEST_CASE("Nabil's given tests") {
@@ -452,11 +655,10 @@ TEST_CASE("Nabil's given tests") {
                "(3 + 5) * 6 * 1");
         CHECK ((new Mult(new Mult(new Num(7), new Num(7)), new Add(new Num(9), new Num(2))))->to_pp_string() ==
                "(7 * 7) * (9 + 2)");
-    }
-    SECTION("Nabil Given Test Assignment 5") {
+    }SECTION("Nabil Given Test Assignment 5") {
         std::string expected = "(2 * _let x = 5\n"
                                "      _in  x + 1) * 3";
-        Expr* expr = new Mult(
+        Expr *expr = new Mult(
                 new Mult(
                         new Num(2),
                         new _Let("x", new Num(5), new Add(new Var("x"), new Num(1)))
@@ -465,35 +667,57 @@ TEST_CASE("Nabil's given tests") {
         );
         CHECK(expr->to_pp_string() == expected);
         delete expr;
+    }SECTION("parse tests given by Nabil") {
+        CHECK_THROWS_WITH(parse_str("()"), "invalid input");
+
+        CHECK(parse_str("(((1)))")->equals(new Num(1)));
+
+        CHECK_THROWS_WITH(parse_str("(1"), "missing closing parentheses");
+
+        CHECK(parse_str("  \n 5  ")->equals(new Num(5)));
+        CHECK_THROWS_WITH(parse_str("-"), "invalid input");
+
+        CHECK_THROWS_WITH(parse_str(" -   5  "), "invalid input");
+
+        CHECK(parse_str("xyz")->equals(new Var("xyz")));
+        CHECK(parse_str("xYz")->equals(new Var("xYz")));
+        CHECK_THROWS_WITH(parse_str("x_z"), "invalid input");
+
+        CHECK(parse_str("x + y")->equals(new Add(new Var("x"), new Var("y"))));
+
+        CHECK(parse_str("x * y")->equals(new Mult(new Var("x"), new Var("y"))));
+
+        CHECK(parse_str("z * x + y")
+                      ->equals(new Add(new Mult(new Var("z"), new Var("x")),
+                                       new Var("y"))));
+        CHECK(parse_str("z * (x + y)")
+                      ->equals(new Mult(new Var("z"),
+                                        new Add(new Var("x"), new Var("y")))));
     }
-    SECTION("parse tests given by Nabil"){
-        CHECK_THROWS_WITH( parse_str("()"), "invalid input");
 
-        CHECK( parse_str("(((1)))")->equals(new Num(1)) );
+    SECTION("HW9 tests from Assignment Description"){
+        std::string input = "1==2+3";
+        std::istringstream in(input);
+        Expr* expr = parse(in);
+       CHECK(expr->interp()->to_string() == "0"); //false !
+        delete expr;
 
-        CHECK_THROWS_WITH( parse_str("(1"), "consume mismatch");
+        std::string inputTwo = "1+1 == 2+0";
+        std::istringstream inTwo(inputTwo);
+        Expr* exprTwo = parse(inTwo);
+        CHECK(exprTwo->interp()->to_string() == "1"); //true !
+        delete exprTwo;
 
-        CHECK( parse_str("  \n 5  ")->equals(new Num(5)) );
-        CHECK_THROWS_WITH( parse_str("-"), "invalid input" );
 
-        CHECK_THROWS_WITH( parse_str(" -   5  "), "invalid input" );
+        std::string inputThree = "_let x=5 _in _if x==5 _then _true _else _false";
+        std::istringstream inThree(inputThree);
+        Expr* exprThree = parse(inThree);
+        CHECK(exprThree->interp()->to_string() == "1");
+        delete exprThree;
 
-        CHECK( parse_str("xyz")->equals(new Var("xyz")) );
-        CHECK( parse_str("xYz")->equals(new Var("xYz")) );
-        CHECK_THROWS_WITH( parse_str("x_z"), "invalid input" );
+    }
 
-        CHECK( parse_str("x + y")->equals(new Add(new Var("x"), new Var("y"))) );
-
-        CHECK( parse_str("x * y")->equals(new Mult(new Var("x"), new Var("y"))) );
-
-        CHECK( parse_str("z * x + y")
-                       ->equals(new Add(new Mult(new Var("z"), new Var("x")),
-                                        new Var("y"))) );
-        CHECK( parse_str("z * (x + y)")
-                       ->equals(new Mult(new Var("z"),
-                                         new Add(new Var("x"), new Var("y"))) ));
     }
 
 
 
-}
