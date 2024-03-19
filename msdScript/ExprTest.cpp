@@ -408,7 +408,7 @@ TEST_CASE("parse"){
 }
 
 TEST_CASE("NumVal"){
-    //NumVal constructor is taken care of in other interp clasess
+    //NumVal constructor is taken care of in other interp tests
     SECTION("equals method") {
         NumVal a(10), b(10), c(5);
         Val* nonNumVal = reinterpret_cast<Val*>(&c); // Simulating a different type of Val

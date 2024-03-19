@@ -4,7 +4,9 @@ CXX = g++
 # Compiler flags add
 # -std=c++11 : Compile for C++11 standard
 # -Wall : Turn on most compiler warnings
-CXXFLAGS = -std=c++11 -Wall
+# -fsanitize=undefined : Check for undefined behavior
+# -fno-sanitize-recover=undefined : Make the program exit immediately on undefined behavior
+CXXFLAGS = -std=c++11 -Wall -fsanitize=undefined -fno-sanitize-recover=undefined
 
 # Define any directories containing header files
 INCLUDES =

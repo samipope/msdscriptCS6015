@@ -28,14 +28,14 @@ Val* NumVal::add_to(Val *other_val) {
     //Insert implementation
     NumVal *other_num = dynamic_cast<NumVal*>(other_val);
     if (other_num == nullptr) throw runtime_error("You can't add a non-number!");
-    return new NumVal(other_num->numVal + this->numVal);
+    return new NumVal( (unsigned) other_num->numVal + (unsigned) this->numVal); //assigned to unsigned help prevent undefined behavior
 }
 
 Val* NumVal::mult_with(Val *other_val) {
     //Insert implementation
     NumVal *other_num = dynamic_cast<NumVal*>(other_val);
     if(other_num == nullptr) throw runtime_error("You can't mult a non-number!");
-    return new NumVal(this->numVal * other_num->numVal);
+    return new NumVal((unsigned)this->numVal * (unsigned)other_num->numVal); //assigned to unsigned help prevent undefined behavior
 }
 
 void NumVal::print(std::ostream &ostream) {
