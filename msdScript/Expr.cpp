@@ -145,44 +145,10 @@ Val* _Let::interp() {
     return body->subst(varName, rhsValue->to_expr())->interp();
 }
 
-/**
- * Checks if the Num expression contains a variable.
- * @return false because Num does not contain a variable.
- */
-bool Num::hasVariable() {
-    return false;
-}
 
-/**
- * Checks if the Add expression contains a variable.
- * @return true if either the left or right expressions contain a variable, false otherwise.
- */
-bool Add::hasVariable() {
-    return this->lhs->hasVariable() || this->rhs->hasVariable();
-}
 
-/**
- * Checks if the Mult expression contains a variable.
- * @return true if either the left or right expressions contain a variable, false otherwise.
- */
-bool Mult::hasVariable() {
-    return this->lhs->hasVariable() || this->rhs->hasVariable();
-}
 
-/**
- * Checks if the Var expression contains a variable.
- * @return true because Var represents a variable.
- */
-bool Var::hasVariable() {
-    return true;
-}
 
-/**
- * @return true if either side has a variable (Var object) or not
- */
-bool _Let::hasVariable() {
-    return head->hasVariable() || body->hasVariable();
-}
 
 /**
  * Substitutes a variable with another expression in a Num object.
@@ -426,9 +392,6 @@ Val *EqExpr::interp() {
     return new BoolVal(result);
 }
 
-bool EqExpr::hasVariable() {
-    return lhs->hasVariable() || rhs->hasVariable();
-}
 
 Expr *EqExpr::subst(std::string stringInput, Expr *e) {
     return new EqExpr(lhs->subst(stringInput,e), rhs->subst(stringInput, e));
@@ -481,9 +444,6 @@ Val *IfExpr::interp() {
     return result;
 }
 
-bool IfExpr::hasVariable() {
-    return condition->hasVariable() || thenExpr->hasVariable() || elseExpr->hasVariable();
-}
 
 Expr *IfExpr::subst(std::string stringInput, Expr *e) {
     return new IfExpr(condition->subst(stringInput, e),
@@ -535,9 +495,6 @@ Val *BoolExpr::interp() {
     return new BoolVal(value);
 }
 
-bool BoolExpr::hasVariable() {
-    return false;
-}
 
 Expr *BoolExpr::subst(std::string stringInput, Expr *e) {
     return new BoolExpr(value);
@@ -552,5 +509,72 @@ void BoolExpr::pretty_print(std::ostream &ot, precedence_t prec, std::streampos 
 }
 
 void BoolExpr::pretty_print_at(std::ostream &ot) {
+    print(ot);
+}
+
+FunExpr::FunExpr(std::string passedArg, Expr *passedBody) {
+    this->formalArg = passedArg;
+    this->body = passedBody;
+}
+
+
+bool FunExpr::equals(Expr *e) {
+    FunExpr* funPtr = dynamic_cast<FunExpr*>(e);
+    if (funPtr == nullptr){
+        return false;
+    }
+    return this->formalArg == funPtr->formalArg && this->body->equals(funPtr->body);
+}
+
+Val* FunExpr::interp() {
+    return new FunVal(formalArg, body);
+}
+
+Expr* FunExpr::subst(string str, Expr* e){
+    if (formalArg == str) {
+        return this;
+    } else
+        return new FunExpr(formalArg, body->subst(str, e));
+}
+
+void FunExpr::print(ostream& o){
+    o << "(_fun (" << this->formalArg << ") " << this->body->to_string() << ")";
+}
+
+void FunExpr::pretty_print(std::ostream &ot, precedence_t prec, std::streampos &lastNewLinePos, bool paren) {
+    print(ot); //OPTIONAL FOR FUNEXPR
+}
+
+void FunExpr::pretty_print_at(std::ostream &ot) {
+    print(ot);
+}
+
+CallExpr::CallExpr(Expr* toBeCalled, Expr* actualArg){
+    this->toBeCalled = toBeCalled;
+    this->actualArg = actualArg;
+};
+
+bool CallExpr::equals(Expr *e){
+    CallExpr* callPtr = dynamic_cast<CallExpr*>(e);
+    if (callPtr == nullptr){
+        return false;
+    }
+    return this->toBeCalled->equals(callPtr->toBeCalled) && this->actualArg->equals(callPtr->actualArg);
+}
+Val* CallExpr::interp(){
+    return this->toBeCalled->interp()->call(actualArg->interp());
+}
+Expr* CallExpr::subst(string str, Expr* e){
+    return new CallExpr(this->toBeCalled->subst(str, e), this->actualArg->subst(str, e));
+}
+void CallExpr::print(ostream &ostream){
+    ostream << "(" << this->toBeCalled->to_string() << ") (" << this->actualArg->to_string() << ")";
+}
+
+void CallExpr::pretty_print(std::ostream &ot, precedence_t prec, std::streampos &lastNewLinePos, bool paren) {
+    print(ot); //OPTIONAL FOR CALLEXPR
+}
+
+void CallExpr::pretty_print_at(std::ostream &ot) {
     print(ot);
 }

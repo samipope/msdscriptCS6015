@@ -23,6 +23,7 @@ public:
     virtual Val* mult_with(Val* other_val) = 0;
     virtual void print(ostream &ostream) = 0;
     virtual bool is_true()=0;
+    virtual Val* call(Val* actual_arg)=0;
 
     std::string to_string(){
          std::stringstream st("");
@@ -34,27 +35,43 @@ public:
 class NumVal : public Val{
 public:
     int numVal;
-    explicit NumVal(int i);
+    NumVal(int i);
     bool is_true() override;
     Expr* to_expr() override;
     bool equals (Val *v) override;
     Val* add_to(Val* other_val) override;
     Val* mult_with(Val* other_val) override;
     void print (ostream &ostream) override;
+    Val * call(Val *actual_arg) override;
 };
 
 class BoolVal : public Val{
 public:
     bool value;
     bool is_true() override;
-    explicit BoolVal(bool passedBool);
+    BoolVal(bool passedBool);
     Expr* to_expr() override;
     bool equals (Val *v) override;
     Val* add_to(Val* other_val) override;
     Val* mult_with(Val* other_val) override;
     void print (ostream &ostream) override;
+    Val * call(Val *actual_arg) override;
+
 };
 
+class FunVal : public Val {
+public:
+    string formalArg;
+    Expr *body;
+    FunVal(string formalArgPassed, Expr * bodyPassed);
+    Expr * to_expr() override;
+    bool equals(Val *v) override;
+    Val * add_to(Val *other_val) override;
+    Val * mult_with(Val *other_val) override;
+    void print(std::ostream &ostream) override;
+    Val * call(Val *actual_arg) override;
+    bool is_true() override;
+};
 
 
 #endif //NEWMSDSCRIPT_VAL_H

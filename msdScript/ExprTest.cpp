@@ -1,6 +1,8 @@
-//
-// Created by Samantha Pope on 1/22/24.
-//
+/// Title: ExprTest.cpp
+/// Author: Samantha Pope
+/// Date: 1.22.2024
+/// Scope: This document includes all of my tests for my script using the Catch2 testing format.
+///
 
 
 #include "catch.h"
@@ -148,70 +150,7 @@ TEST_CASE("interp tests", "All Expressions") {
 }
 
 
-TEST_CASE("hasVariable tests", "All Expressions"){
-    SECTION("Num hasVariable") {
-        Num num1(5);
-        REQUIRE_FALSE(num1.hasVariable());
-        Num num2(-3);
-        REQUIRE_FALSE(num2.hasVariable());
-        Num num3(0);
-        REQUIRE_FALSE(num3.hasVariable());
-        Num num4(100);
-        REQUIRE_FALSE(num4.hasVariable());
-        Num num5(-50);
-        REQUIRE_FALSE(num5.hasVariable());
-    }
 
-    SECTION("Add hasVariable") {
-        Num num1(5);
-        Num num2(10);
-        Var var1("x");
-        Add add1(&num1, &num2);
-        REQUIRE_FALSE(add1.hasVariable());
-        Add add2(&num1, &var1);
-        REQUIRE(add2.hasVariable());
-        Add add3(&var1, &var1);
-        REQUIRE(add3.hasVariable());
-        Num num3(0);
-        Add add4(&num2, &num3);
-        REQUIRE_FALSE(add4.hasVariable());
-        Var var2("y");
-        Add add5(&var1, &var2);
-        REQUIRE(add5.hasVariable());
-    }
-
-    SECTION("Mult hasVariable") {
-        Num num1(5);
-        Num num2(3);
-        Var var1("x");
-        Mult mult1(&num1, &num2);
-        REQUIRE_FALSE(mult1.hasVariable());
-        Mult mult2(&num1, &var1);
-        REQUIRE(mult2.hasVariable());
-        Mult mult3(&var1, &var1);
-        REQUIRE(mult3.hasVariable());
-        Num num3(0);
-        Mult mult4(&num2, &num3);
-        REQUIRE_FALSE(mult4.hasVariable());
-        Var var2("y");
-        Mult mult5(&var1, &var2);
-        REQUIRE(mult5.hasVariable());
-    }
-
-    SECTION("Var hasVariable") {
-        Var varExpr1("x");
-        REQUIRE(varExpr1.hasVariable());
-        Var varExpr2("y");
-        REQUIRE(varExpr2.hasVariable());
-        Var varExpr3("var");
-        REQUIRE(varExpr3.hasVariable());
-        Var varExpr4("123");
-        REQUIRE(varExpr4.hasVariable());
-        Var varExpr5("testVar");
-        REQUIRE(varExpr5.hasVariable());
-    }
-
-}
 
 
 
@@ -311,13 +250,7 @@ TEST_CASE("pretty_print_at Tests", "All expression classes"){
 
 
 TEST_CASE("_Let Tests"){
-    SECTION("hasVariable()"){
-        CHECK((_Let("x", new Num(5), new Var("x")).hasVariable() == true));
-        CHECK((_Let("x", new Num(5), new Num(10)).hasVariable() == false));
-        CHECK((_Let("x", new Add(new Var("y"), new Num(1)), new Num(10)).hasVariable() == true));
-        CHECK((_Let("x", new Num(5), new Mult(new Var("x"), new Num(2))).hasVariable() == true));
-        CHECK((_Let("y", new Num(5), new Var("x")).hasVariable() == true));
-    }
+
     SECTION("equals"){
         CHECK((_Let("x", new Num(5), new Var("x")).equals(new _Let("x", new Num(5), new Var("x"))) == true));
         CHECK((_Let("x", new Num(5), new Var("x")).equals(new _Let("y", new Num(5), new Var("x"))) == false));
@@ -582,7 +515,7 @@ TEST_CASE("Testing IfExpr") {
 
 }
 
-TEST_CASE("Parse if and bool"){
+TEST_CASE("Parse If, Bool and Functions"){
 
     SECTION("Parsing IfExpr") {
         CHECK(parse_str(("_if _true _then 4 _else 5"))->equals(
@@ -609,10 +542,183 @@ TEST_CASE("Parse if and bool"){
         CHECK( parse_str("_if -4==-5 _then 6 _else 8") ->interp() ->equals(new NumVal(8)));
     }
 
+
+    SECTION("TEST FUNCTIONS PARSE - from Ziz :)"){
+        CHECK( parse_str("_let f = _fun (x) x+ 1\n"
+                         "_in f(5)")->interp()->equals(new NumVal(6)));
+        CHECK( parse_str("_let f = _fun (x)\n"
+                         "7\n"
+                         "_in f(5) ")->interp()->equals(new NumVal(7)));
+
+        CHECK( parse_str("_let f = _fun (x)\n"
+                         "_true\n"
+                         "_in f(5)  ")->interp()->equals(new BoolVal(true)));
+        CHECK_THROWS( parse_str("_let f = _fun (x)\n"
+                                "x + _true\n"
+                                "_in f(5) ")->interp() );
+        CHECK( parse_str("_let f = _fun (x)\n       "
+                         "x +   _true\n"
+                         "_in        5 + 1 ")->interp()->equals(new NumVal(6)) );
+        CHECK_THROWS( parse_str("_let f = _fun (x)\n"
+                                "7"
+                                "_in  f(5 + _true)")->interp() );
+        CHECK_THROWS( parse_str("_let f = _fun (x) x+ 1\n"
+                                "_in f + 5")->interp() );
+        CHECK( parse_str("_let f = _fun (x) x+ 1\n"
+                         "_in _if _false\n"
+                         "_then f(5)\n"
+                         "_else f(6)")->interp()->equals(new NumVal(7)) );
+        CHECK( parse_str("_let f = _fun (x) x+ 1\n"
+                         "_in _let g = _fun (y) y+ 2\n"
+                         "_in _if _true     \n"
+                         "_then f(5)\n"
+                         "_else g(5)")->interp()->equals(new NumVal(6)) );
+        CHECK( parse_str("_let f = _fun (x) x+ 1\n"
+                         "_in _let g = _fun (y) y+ 2\n"
+                         "_in f(g(5))\n")->interp()->equals(new NumVal(8)) );
+
+        CHECK( parse_str("_let f =       _fun (x) x+ 1\n"
+                         "_in _let g = _fun (y)\n"
+                         "f(y + 2)\n"
+                         "_in g(5)")->interp()->equals(new NumVal(8)) );
+        CHECK( parse_str("_let f = _fun (x) x+ 1\n"
+                         "_in _let g = _fun (x)\n"
+                         "f(2) + x\n"
+                         "_in g(5) ")->interp()->equals(new NumVal(8)) );
+        CHECK_THROWS( parse_str("_let f = _fun (x) x+ 1\n"
+                                "_in f 5  ")->interp() );
+        CHECK( parse_str("_let f = _fun (x) x+ 1\n"
+                         "_in (f)(5)  ")->interp()->equals(new NumVal(6)) );
+        CHECK( parse_str("_fun (x) x+ 1")->interp()->equals(new FunVal("x", new Add(new Var("x"),new Num(1)))) );
+        CHECK( parse_str("_let f = _fun (x) x+ 1\n"
+                         "_in f")->interp()->equals(new FunVal("x", new Add(new Var("x"),new Num(1)))) );
+        CHECK( parse_str("(_fun (x)\n"
+                         "x + 1)(5)")->interp()->equals(new NumVal(6)));
+        CHECK( parse_str("_let f = _if _false\n"
+                         "_then _fun (x)\n"
+                         "x+ 1\n"
+                         "_else _fun (x)\n"
+                         "x+ 2\n"
+                         "_in f(5)")->interp()->equals(new NumVal(7)));
+        CHECK( parse_str("(_if _false\n"
+                         "_then _fun (x)\n"
+                         "x+ 1\n"
+                         "_else _fun (x)\n"
+                         "x + 2)(5)")->interp()->equals(new NumVal(7)));
+        CHECK( parse_str("_let f = _fun (g)\n"
+                         "              g(5)\n"
+                         "_in _let g = _fun (y)\n"
+                         "              y + 2\n"
+                         "_in f(g) ")->interp()->equals(new NumVal(7)));
+        CHECK( parse_str("_let f = _fun (g)"
+                         "              g(5)\n"
+                         "_in f(_fun (y)\n"
+                         "y + 2) ")->interp()->equals(new NumVal(7)));
+        CHECK( parse_str("_let f = _fun (x)\n"
+                         "          _fun (y)\n"
+                         "x+ y _in (f(5))(1) ")->interp()->equals(new NumVal(6)));
+        CHECK( parse_str("_let f = _fun (x)\n"
+                         "          _fun (y)\n"
+                         "x+ y _in f(5)(1)  ")->interp()->equals(new NumVal(6)));
+        CHECK( parse_str("_let f = _fun (x)\n"
+                         "          _fun (g)\n"
+                         "           g(x + 1)\n"
+                         "_in _let g = _fun (y)\n"
+                         "              y+ 2"
+                         "_in (f(5))(g)")->interp()->equals(new NumVal(8)));
+        CHECK( parse_str("_let f = _fun (x)\n"
+                         "          _fun (g)\n"
+                         "          g(x + 1)\n"
+                         "_in _let g = _fun (y)\n"
+                         "y+ 2 _in f(5)(g) ")->interp()->equals(new NumVal(8)));
+        CHECK( parse_str("_let f = _fun (f)\n"
+                         "          _fun (x)\n"
+                         "      _if x == 0\n"
+                         "      _then 0\n"
+                         "      _else x + f(f)(x + -1)\n"
+                         "_in f(f)(3)")->interp()->equals(new NumVal(6)));
+        CHECK( parse_str("_let factrl = _fun (factrl)\n"
+                         "                  _fun (x)\n"
+                         "                  _if x == 1\n"
+                         "                  _then 1\n"
+                         "_else x * factrl(factrl)(x + -1)\n"
+                         "_in  factrl(factrl)(10)")->interp()->equals(new NumVal(3628800)));
+
+    }
+
+    SECTION("Sami's parse Fun tests"){
+        CHECK( parse_str("(_if _false\n"
+                         "    _then _fun (x)\n"
+                         "    x + 1\n"
+                         "    _else _fun (x)\n"
+                         "    x + 2)(5)")->interp()->equals(new NumVal(7)));
+
+        CHECK( parse_str("_let f = _fun (g)\n"
+                         "              g(5)\n"
+                         "_in _let g = _fun (y)\n"
+                         "              y + 2\n"
+                         "_in f(g)")->interp()->equals(new NumVal(7)));
+
+        CHECK( parse_str("_let f = _fun (g)\n"
+                         "              g(5)\n"
+                         "_in f(_fun (y)\n"
+                         "    y + 2)")->interp()->equals(new NumVal(7)));
+
+        CHECK( parse_str("_let f = _fun (x)\n"
+                         "          _fun (y)\n"
+                         "          x+ y _in (f(5))(1)")->interp()->equals(new NumVal(6)));
+
+        CHECK( parse_str("_let f = _fun (x)\n"
+                         "          _fun (y)\n"
+                         "          x+ y _in f(5)(1)")->interp()->equals(new NumVal(6)));
+
+        CHECK( parse_str("_let f = _fun (x)\n"
+                         "          _fun (g)\n"
+                         "           g(x + 1)\n"
+                         "_in _let g = _fun (y)\n"
+                         "              y+ 2\n"
+                         "_in (f(5))(g)")->interp()->equals(new NumVal(8)));
+
+        CHECK( parse_str("_let f = _fun (x)\n"
+                         "          _fun (g)\n"
+                         "          g(x + 1)\n"
+                         "_in _let g = _fun (y)\n"
+                         "              y+ 2 _in f(5)(g)")->interp()->equals(new NumVal(8)));
+
+        CHECK( parse_str("_let f = _fun (f)\n"
+                         "          _fun (x)\n"
+                         "      _if x == 0\n"
+                         "      _then 0\n"
+                         "      _else x + f(f)(x + -1)\n"
+                         "_in f(f)(3)")->interp()->equals(new NumVal(6)));
+    }
+}
+
+TEST_CASE("Function Print tests"){
+    Var* varX = new Var("x");
+    Num* num1 = new Num(1);
+    Add* body = new Add(varX, num1);
+    Mult* body1 = new Mult(varX,num1);
+    FunExpr funExpr("x", body);
+    FunExpr fun1Expr("y", body1);
+
+    SECTION("constructor, print") {
+        ostringstream output;
+        funExpr.print(output);
+        CHECK(output.str() == "(_fun (x) (x+1))");
+        fun1Expr.print(output);
+        CHECK(output.str()=="(_fun (x) (x+1))(_fun (y) (x*1))");
+    }
+
+    delete varX;
+    delete num1;
+    delete body;
+    delete body1;
+
 }
 
 
-TEST_CASE("Nabil's given tests") {
+TEST_CASE("Professor's given tests") {
     SECTION("Given Tests Assignment 2") {
         CHECK((new Var("x"))->equals(new Var("x")) == true);
         CHECK((new Var("x"))->equals(new Var("y")) == false);
@@ -627,8 +733,7 @@ TEST_CASE("Nabil's given tests") {
         CHECK((new Add(new Add(new Num(10), new Num(15)), new Add(new Num(20), new Num(20))))
                       ->interp()->equals(new NumVal(65)));
         CHECK_THROWS_WITH((new Var("x"))->interp(), "no value for variable");
-        CHECK((new Add(new Var("x"), new Num(1)))->hasVariable() == true);
-        CHECK((new Mult(new Num(2), new Num(1)))->hasVariable() == false);
+
         CHECK((new Add(new Var("x"), new Num(7)))
                       ->subst("x", new Var("y"))
                       ->equals(new Add(new Var("y"), new Num(7))));
@@ -640,7 +745,6 @@ TEST_CASE("Nabil's given tests") {
     SECTION("Given Tests for Assignment 4") {
         CHECK((new Num(10))->to_string() == "10");
 
-        // Create a stringstream to capture the output of pretty_print
         std::stringstream ss1;
         (new Add(new Num(1), new Mult(new Num(2), new Num(3))))->pretty_print_at(ss1);
         CHECK(ss1.str() == "1 + 2 * 3");
@@ -718,6 +822,8 @@ TEST_CASE("Nabil's given tests") {
     }
 
     }
+
+
 
 
 

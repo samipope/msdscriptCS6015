@@ -20,7 +20,6 @@ public:
     virtual ~Expr() = default; //virtual destructor - allows me to write tests using "delete" to test my deepCopy (prevents memory links)
     virtual bool equals(Expr *e) = 0;
     virtual Val* interp() =0;
-    virtual bool hasVariable()=0;
     virtual Expr* subst(std::string stringInput, Expr* e)=0;
 
     std::string to_string() {
@@ -47,7 +46,6 @@ public:
     Num(int val);
     bool equals(Expr *e) override;
     Val* interp() override;
-    bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
     void print(std::ostream& stream) override;
     void pretty_print_at(std::ostream &ot) override;
@@ -63,7 +61,6 @@ public:
     Add(Expr *lhs, Expr *rhs);
     bool equals(Expr *e) override;
     Val* interp() override;
-    bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
     void print(std::ostream& stream) override;
     void pretty_print_at(std::ostream &ot) override;
@@ -81,7 +78,6 @@ public:
     Mult(Expr *lhs, Expr *rhs);
     bool equals(Expr *e) override;
     Val* interp() override;
-    bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
     void print(std::ostream& stream) override;
     void pretty_print_at(std::ostream &ot) override;
@@ -97,7 +93,6 @@ public:
     Var(const std::string& varPassed);
     bool equals(Expr *e) override;
     Val* interp() override;
-    bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
     void print(std::ostream& stream) override;
     void pretty_print_at(std::ostream &ot) override;
@@ -116,7 +111,6 @@ public:
 
     bool equals(Expr *e) override;
     Val* interp() override;
-    bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
     void print(std::ostream& stream) override;
     void pretty_print_at(std::ostream &ot) override;
@@ -127,20 +121,14 @@ public:
 
 class BoolExpr: public Expr{
     bool value;
-
-    bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
-
     void pretty_print_at(std::ostream &ot) override;
     void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
 
 public:
     BoolExpr(bool value);
-
     Val* interp() override;
-
     void print(std::ostream& stream) override;
-
     bool equals(Expr *e) override;
 };
 
@@ -150,40 +138,53 @@ class IfExpr: public Expr{
     Expr* thenExpr;
     Expr* elseExpr;
 
-    bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
-
     void pretty_print_at(std::ostream &ot) override;
     void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
-
 public:
     IfExpr(Expr* condition, Expr* thenExpr, Expr* elseExpr);
-
     bool equals(Expr *e) override;
-
     Val* interp() override;
-
     void print(std::ostream& stream) override;
 };
 
 class EqExpr: public Expr{
     Expr* lhs;
     Expr* rhs;
-
-    bool hasVariable() override;
     Expr* subst(std::string stringInput, Expr* e) override;
-
     void pretty_print_at(std::ostream &ot) override;
     void pretty_print(std::ostream& ot, precedence_t prec, std::streampos& lastNewLinePos, bool paren) override;
-
 public:
     EqExpr(Expr* lhs, Expr* rhs);
-
     Val* interp() override;
-
     bool equals(Expr *e) override;
-
     void print(std::ostream& stream) override;
+};
+
+class FunExpr: public Expr{
+public:
+    std::string formalArg;
+    Expr *body;
+    FunExpr(std::string passedArg, Expr *passedBody);
+    bool equals(Expr *e) override;
+    Val * interp() override;
+    Expr * subst(std::string stringInput, Expr *e) override;
+    void print(std::ostream &stream) override;
+    void pretty_print_at(std::ostream &ot) override;
+    void pretty_print(std::ostream &ot, precedence_t prec, std::streampos &lastNewLinePos, bool paren) override;
+};
+
+class CallExpr : public Expr{
+public:
+    Expr *toBeCalled;
+    Expr *actualArg;
+    CallExpr(Expr *toBePassed, Expr *argPassed);
+    bool equals(Expr *e) override;
+    Val * interp() override;
+    Expr * subst(std::string stringInput, Expr *e) override;
+    void print(std::ostream &stream) override;
+    void pretty_print_at(std::ostream &ot) override;
+    void pretty_print(std::ostream &ot, precedence_t prec, std::streampos &lastNewLinePos, bool paren) override;
 };
 
 #endif //CS6015PROJECT_EXPR_H

@@ -1,52 +1,67 @@
-////
-//// Created by Samantha Pope on 2/13/24.
-////
+/// Title: Parse.cpp
+/// Author: Samantha Pope
+/// Date: 02.14.2024
+/// Scope: parses user input for our script to understand.
+/// Handles all inputs/object types that our user could pass in
 
 #include "Expr.h"
 #include "val.h"
 #include <iostream>
+#include <istream>
 #include "parse.h"
+using namespace std;
 
 /**
- * parses expression from a string
- * @param s string that we parse
- * @return the expression
+ * Consumes a specific word from the input stream.
+ * If the word does not match exactly, throws a runtime error.
+ *
+ * @param in The input stream to consume from.
+ * @param str The string that needs to be consumed from the input stream.
+ * @throws runtime_error If the actual input does not match the expected string.
  */
-Expr *parse_str(string s){
-    istringstream in(s);
-    return parse (in);
-}
-
-/**
- * parse expression from an input stream
- * @param in input stream
- * @return expression present
- */
-Expr *parse(std::istream &in) {
-    Expr *e;
-    e = parse_expr(in);
-    skip_whitespace(in);
-    if (!in.eof()) {
-        throw std::runtime_error("invalid input");
+void consume_word(istream &in, string str){
+    for(char c : str){
+        if (in.get()!=c){
+            throw runtime_error("consume mismatch");
+        }
     }
-    return e;
 }
 
+/**
+ * Parses an if-expression from the input stream.
+ * Constructs an IfExpr object based on the conditional, then, and else expressions read from the stream.
+ *
+ * @param stream The input stream to parse from.
+ * @return A pointer to the constructed IfExpr object.
+ */
+Expr* parse_if( std::istream &stream ) {
+    skip_whitespace(stream);
+    Expr *ifStatement = parse_expr(stream);
+    skip_whitespace(stream);
+    consume_word(stream, "_then");
+    skip_whitespace(stream);
+    Expr *thenStatement = parse_expr(stream);
+    skip_whitespace(stream);
+    consume_word(stream, "_else");
+    skip_whitespace(stream);
+    Expr *elseStatement = parse_expr(stream);
+    return new IfExpr(ifStatement, thenStatement, elseStatement);
+}
 
 /**
- * parses expression including equality checks from input stream
- * reads input stream --> makes expression objects
- * handles equality by looking for "=="
- * @param in input stream
- * @return pointer to parsed expression
+ * Parses an expression from the input stream.
+ * Handles equality and passes control to parse_comparg for arithmetic operations.
+ *
+ * @param in The input stream to parse from.
+ * @return A pointer to the constructed Expr object, representing the parsed expression.
  */
 Expr *parse_expr(std::istream &in) {
     Expr* e = parse_comparg(in);
     skip_whitespace(in);
-    if(in.peek() == '='){
+    if (in.peek() == '='){
         consume(in, '=');
-        if(in.peek() != '='){
-            throw std::runtime_error("need '==' to indicate equal check") ;
+        if (in.peek() != '='){
+            throw runtime_error("need '=='!");
         }
         consume(in, '=');
         Expr* rhs = parse_expr(in);
@@ -56,16 +71,16 @@ Expr *parse_expr(std::istream &in) {
 }
 
 /**
- * parse an expression that may include addition
- * if there is a plus, it parses both sides of the addition and returns an Add object
+ * Parses an addition or subtraction expression from the input stream.
+ * Constructs an Add object if an addition operation is detected.
+ *
+ * @param in The input stream to parse from.
+ * @return A pointer to the constructed Expr object, either the parsed expression or an addition expression.
  */
-Expr* parse_comparg(istream &in) {
-
+Expr* parse_comparg(istream &in){
     Expr *e = parse_addend(in);
-
     skip_whitespace(in);
-
-    if (in.peek() == '+') {
+    if (in.peek() == '+'){
         consume(in, '+');
         Expr *rhs = parse_comparg(in);
         return new Add(e, rhs);
@@ -74,9 +89,11 @@ Expr* parse_comparg(istream &in) {
 }
 
 /**
- * parses multiplication expression from stream
- * @param in input stream
- * @return the Mult object
+ * Parses a multiplication expression from the input stream.
+ * Constructs a Mult object if a multiplication operation is detected.
+ *
+ * @param in The input stream to parse from.
+ * @return A pointer to the constructed Expr object, either the parsed expression or a multiplication expression.
  */
 Expr *parse_addend(std::istream &in) {
     Expr *e;
@@ -95,12 +112,12 @@ Expr *parse_addend(std::istream &in) {
 }
 
 /**
- * parses term from input stream
- * looks through until it finds a non-letter. used to parse keywords
- * @param in input stream
- * @return string of term
+ * Parses a term from the input stream. A term is a sequence of letters.
+ *
+ * @param in The input stream to parse from.
+ * @return The parsed term as a string.
  */
-std::string parse_term(istream &in){
+string parse_term(istream &in){
     string term;
     while (true) {
         int letter = in.peek();
@@ -115,11 +132,88 @@ std::string parse_term(istream &in){
     return term;
 }
 
+/**
+ * Parses an expression that can be a function call from the input stream.
+ * Handles function call syntax with parentheses.
+ *
+ * @param in The input stream to parse from.
+ * @return A pointer to the constructed Expr object, possibly representing a function call.
+ */
+Expr* parse_multicand(istream &in) {
+    Expr* e = parse_inner(in);
+    while (in.peek() == '(') {
+        consume(in, '(');
+        Expr* actual_arg = parse_expr(in);
+        consume(in, ')');
+        e = new CallExpr(e, actual_arg);
+    }
+    return e;
+}
 
 /**
+ * Parses the most basic expressions from the input stream, including numbers, variables, and expressions in parentheses.
  *
- * @param in
- * @return
+ * @param in The input stream to parse from.
+ * @return A pointer to the constructed Expr object, representing the parsed inner expression.
+ */
+Expr *parse_inner(std::istream &in) {
+    skip_whitespace(in);
+    int c = in.peek();
+
+    if ((c == '-') || isdigit(c)){
+        return parse_num(in);
+    }
+
+    else if (c == '(') {
+        consume(in, '(');
+        Expr *e = parse_comparg(in);
+        skip_whitespace(in);
+        c = in.get();
+        if (c != ')'){
+            throw runtime_error( "missing closing parentheses");
+        }
+        return e;
+    }
+
+    else if (isalpha(c)) {
+        return parse_var(in);
+    }
+
+    else if (c=='_'){
+        consume(in, '_');
+
+        string term = parse_term(in);
+
+        if(term == "let"){
+            return parse_let(in);
+        }
+        else if(term == "if"){
+            return parse_if(in);
+        }
+        else if(term == "true"){
+            return new BoolExpr(true);
+        }
+        else if(term == "false"){
+            return new BoolExpr(false);
+        }
+        else if(term == "fun"){
+            return parse_fun(in);
+        }
+        else{
+            throw runtime_error("invalid input");
+        }
+    }
+    else {
+        consume(in, c);
+        throw runtime_error("invalid input");
+    }
+}
+
+/**
+ * Parses a number from the input stream. Handles negative numbers.
+ *
+ * @param in The input stream to parse from.
+ * @return A pointer to a Num object, representing the parsed number.
  */
 Expr *parse_num(std::istream &in) {
     int n = 0;
@@ -150,83 +244,12 @@ Expr *parse_num(std::istream &in) {
 }
 
 /**
+ * Consumes a specific character from the input stream. If the character does not match, throws a runtime error.
  *
- * @param in
- * @return
+ * @param in The input stream to consume from.
+ * @param expect The character expected to be consumed.
+ * @throws runtime_error If the actual character does not match the expected character.
  */
-Expr *parse_multicand(std::istream &in) {
-    skip_whitespace(in);
-    int c = in.peek();
-    if ((c == '-' || isdigit(c))) {
-        return parse_num(in);
-    } else if (c == '('){
-        consume(in, '(');
-        Expr *e = parse_expr(in);
-        skip_whitespace(in);
-        c = in.get();
-        if (c != ')') {
-            throw std::runtime_error("missing closing parentheses");
-        }
-        return e;}
-    else if (isalpha(c)) {
-        return parse_variable(in);
-    }
-
-    else if (c=='_'){
-        consume(in, '_');
-
-        string term = parse_term(in);
-
-        if(term == "let"){
-            return parse_let(in);
-        }
-        else if(term == "if"){
-            return parse_if(in);
-        }
-        else if(term == "true"){
-            return new BoolExpr(true);
-        }
-        else if(term == "false"){
-            return new BoolExpr(false);
-        }
-        else{
-            throw runtime_error("invalid input");
-        }
-    }
-    else {
-        consume(in, c);
-        throw runtime_error("invalid input");
-    }
-
-}
-/**
- *
- * @param in
- * @return
- */
-Expr *parse_variable(std::istream &in) {
-    std::string var;
-    //forever loop
-    while (true) {
-        int c = in.peek();
-        //check that the char is valid
-        if (isalpha(c)) {
-            consume(in, c);
-            //add the char it's on to the var string
-            var += static_cast<char>(c);
-        }
-        else {
-            break;
-        }
-    }
-    //return the var
-    return new Var(var);
-}
-
-
-
-
-
 void consume(std::istream &in, int expect) {
     int c = in.get();
     if (c != expect) {
@@ -234,17 +257,28 @@ void consume(std::istream &in, int expect) {
     }
 }
 
-void consume(std::istream & stream, const std::string & str)
+/**
+ * Consumes a specific string from the input stream. If the string does not match exactly, throws a runtime error.
+ *
+ * @param stream The input stream to consume from.
+ * @param str The string that needs to be consumed from the input stream.
+ * @throws runtime_error If the actual input does not match the expected string.
+ */
+void consume( std::istream & stream, const std::string & str)
 {
-    for ( char c : str )
+    for ( char expect : str )
     {
-        const int real = stream.get();
-        if ( real != c ){
-            throw std::runtime_error( "consume STRING mismatch" );
-        }
+        const int c = stream.get();
+        if ( c != expect )
+            throw std::runtime_error( "consume(): mismatch" );
     }
 }
 
+/**
+ * Skips whitespace characters in the input stream.
+ *
+ * @param in The input stream to skip whitespace in.
+ */
 void skip_whitespace(std::istream &in) {
     while (1) {
         int c = in.peek();
@@ -255,40 +289,109 @@ void skip_whitespace(std::istream &in) {
 }
 
 /**
+ * Parses an entire expression from the input stream.
+ * This function ensures that the entire input is consumed by the end of the parsing process.
  *
- * @param in
- * @return
+ * @param in The input stream to parse from.
+ * @return A pointer to the parsed Expr object.
+ * @throws runtime_error If there is any remaining input after parsing the expression.
  */
-Expr *parse_let(std::istream &in) {
+Expr *parse(std::istream &in) {
+    Expr *e;
+    e = parse_expr(in);
     skip_whitespace(in);
-    Expr *e = parse_variable(in);
+    if (!in.eof()) {
+        throw std::runtime_error("invalid input");
+    }
+    return e;
+}
+
+/**
+ * Parses an input expression from standard input and constructs its corresponding expression tree.
+ * @return A pointer to the constructed Expr object, representing the parsed expression.
+ */
+Expr *parseInput() {
+    std::string input;
+    getline(std::cin, input);
+    std::cout << "input : " << input << std::endl;
+    std::stringstream ss(input);
+    return parse_comparg(ss);
+}
+
+/**
+ * Parses a let-expression from the input stream.
+ * Constructs a _Let object based on the parsed variable, value, and body expressions.
+ *
+ * @param in The input stream to parse from.
+ * @return A pointer to the constructed _Let object.
+ */
+Expr *parse_let(std::istream &in){
+    skip_whitespace(in);
+    Expr *e = parse_var(in);
     string lhs = e->to_string();
     skip_whitespace(in);
     consume(in, '=');
     skip_whitespace(in);
     Expr *rhs = parse_comparg(in);
     skip_whitespace(in);
-    consume(in, "_in");
+    consume_word(in, "_in");
     skip_whitespace(in);
     Expr *body = parse_comparg(in);
     return new _Let(lhs, rhs, body);
 }
 
 /**
+ * Parses a variable name from the input stream and creates a variable expression.
+ * The function reads characters from the input stream until it encounters a character that is not a letter.
+ * It then constructs a Var object representing a variable expression with the parsed name.
  *
- * @param in
- * @return
+ * @param in The input stream to parse from.
+ * @return A pointer to a Var object, representing the parsed variable expression.
  */
-Expr* parse_if(istream &in){
+Expr *parse_var(std::istream &in){
+    std::string var;
+    while(true){
+        int c = in.peek();
+        if (isalpha(c)){
+            consume(in, c);
+            var += static_cast<char>(c);
+        } else {
+            break;
+        }
+    }
+    return new Var(var);
+}
+
+/**
+ * Parses an expression from a string.
+ * This function wraps the given string into an input stream and delegates the parsing to the `parse` function,
+ * which constructs an expression tree based on the input.
+ *
+ * @param s The string containing the expression to parse.
+ * @return A pointer to an Expr object, representing the root of the parsed expression tree.
+ */
+Expr *parse_str(const string& s){
+    istringstream in(s);
+    return parse (in);
+}
+
+/**
+ * Parses a function expression from the input stream.
+ * This function expects the input stream to contain a function declaration, starting with an opening parenthesis,
+ * followed by a variable name (the function parameter), a closing parenthesis, and the function body as an expression.
+ * It constructs a FunExpr object representing the parsed function expression.
+ *
+ * @param in The input stream to parse from.
+ * @return A pointer to a FunExpr object, representing the parsed function expression.
+ */
+Expr* parse_fun(istream &in){
     skip_whitespace(in);
-    Expr* ifStatement = parse_expr(in);
+    consume(in, '(');
+    Expr* e = parse_var(in);
+    string var = e->to_string();
+    consume(in, ')');
     skip_whitespace(in);
-    consume(in, "_then");
-    skip_whitespace(in);
-    Expr* thenStatement = parse_expr(in);
-    skip_whitespace(in);
-    consume(in, "_else");
-    skip_whitespace(in);
-    Expr* elseStatment = parse_expr(in);
-    return new IfExpr(ifStatement, thenStatement, elseStatment);
+    e = parse_expr(in);
+    return new FunExpr(var, e);
+
 }
