@@ -12,4 +12,5 @@ add_executable(newMSDSCRIPT main.cpp
         exec.cpp
         test_msdscript.cpp
         val.h
-        val.cpp)
+        val.cpp
+        pointer.h)

@@ -3,6 +3,7 @@
 //
 
 #include "exec.h"
+#include "pointer.h"
 #include <string>
 #include <iostream>
 #include <cassert>

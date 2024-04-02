@@ -6,6 +6,7 @@
 #define NEWMSDSCRIPT_EXEC_H
 
 #include <string>
+#include "pointer.h"
 
 class ExecResult {
 public:

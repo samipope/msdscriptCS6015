@@ -7,6 +7,7 @@
 #include "Expr.h"
 #include "catch.h"
 #include "val.h"
+#include "pointer.h"
 
 int main(int argc, const char *argv[]) {
     try {
@@ -26,19 +27,17 @@ int main(int argc, const char *argv[]) {
                 std::string line;
                 if (std::getline(std::cin, line)) {
                     std::istringstream expr_stream(line);
-                    Expr* expr = parse_expr(expr_stream);
+                    PTR(Expr) expr = parse_expr(expr_stream);
                     if (mode == do_interp) {
-                        Val* result = expr->interp(); // Interpret the expression
+                        PTR(Val) result = expr->interp(); // Interpret the expression
                         std::string resultStr = result->to_string(); // Convert the result to a string
                         std::cout << resultStr << std::endl; // Print the result string
-                        delete result; // Clean up
                     } else if (mode == do_print) {
                         expr->print(std::cout);
                         std::cout << std::endl;
                     } else if (mode == do_pretty_print) {
                         std::cout << expr->to_pp_string() << std::endl;
                     }
-                    delete expr; // Clean up
                 } else {
                     std::cerr << "No input received.\n";
                     return 1;

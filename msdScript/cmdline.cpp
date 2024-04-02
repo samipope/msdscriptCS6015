@@ -7,6 +7,7 @@
 #include "cmdline.h"
 #include "catch.h"
 #include "parse.h"
+#include "pointer.h"
 
 run_mode_t useArgs(int argc, const char *argv[]) {
     run_mode_t mode = do_nothing;

@@ -11,29 +11,29 @@ NumVal::NumVal(int i) {
     numVal = i;
 }
 
-Expr* NumVal::to_expr() {
-    return new Num(this->numVal);
+PTR(Expr) NumVal::to_expr() {
+    return NEW(Num)(this->numVal);
 }
 
-bool NumVal::equals(Val *v) {
+bool NumVal::equals(PTR(Val) v) {
     //Insert implementation
-    NumVal* numPointer = dynamic_cast<NumVal*>(v);
+    PTR(NumVal) numPointer = CAST(NumVal)(v);
     if (numPointer == nullptr){
         return false;
     }
     return this->numVal == numPointer ->numVal;
 }
 
-Val* NumVal::add_to(Val *other_val) {
-    NumVal *other_num = dynamic_cast<NumVal*>(other_val);
+PTR(Val) NumVal::add_to(PTR(Val) other_val) {
+    PTR(NumVal) other_num = CAST(NumVal)(other_val);
     if (other_num == nullptr) throw runtime_error("You can't add a non-number!");
-    return new NumVal( (unsigned) other_num->numVal + (unsigned) this->numVal); //assigned to unsigned help prevent undefined behavior
+    return NEW(NumVal)( (unsigned) other_num->numVal + (unsigned) this->numVal); //assigned to unsigned help prevent undefined behavior
 }
 
-Val* NumVal::mult_with(Val *other_val) {
-    NumVal *other_num = dynamic_cast<NumVal*>(other_val);
+PTR(Val) NumVal::mult_with(PTR(Val) other_val) {
+    PTR(NumVal) other_num = CAST(NumVal)(other_val);
     if(other_num == nullptr) throw runtime_error("You can't mult a non-number!");
-    return new NumVal((unsigned)this->numVal * (unsigned)other_num->numVal); //assigned to unsigned help prevent undefined behavior
+    return NEW(NumVal)((unsigned)this->numVal * (unsigned)other_num->numVal); //assigned to unsigned help prevent undefined behavior
 }
 
 void NumVal::print(std::ostream &ostream) {
@@ -44,7 +44,7 @@ bool NumVal::is_true() {
     throw std::runtime_error("cannot use is_true on NumVal");
 }
 
-Val* NumVal::call(Val* actualArg){
+PTR(Val) NumVal::call(PTR(Val) actualArg){
     throw runtime_error("Cannot call NumVal!");
 }
 
@@ -53,20 +53,20 @@ BoolVal::BoolVal(bool passedBool){
     value = passedBool;
 }
 
-bool BoolVal::equals(Val *v) {
-    BoolVal* bv = dynamic_cast<BoolVal*>(v);
+bool BoolVal::equals(PTR(Val) v) {
+    PTR(BoolVal) bv = CAST(BoolVal)(v);
     return bv != nullptr && value == bv->value;
 }
 
-Expr *BoolVal::to_expr() {
-    return new BoolExpr(this->value);
+PTR(Expr) BoolVal::to_expr() {
+    return NEW(BoolExpr)(this->value);
 }
 
-Val *BoolVal::add_to(Val *other_val) {
+PTR(Val) BoolVal::add_to(PTR(Val) other_val) {
     throw std::runtime_error("Cannot add boolean values");
 }
 
-Val *BoolVal::mult_with(Val *other_val) {
+PTR(Val) BoolVal::mult_with(PTR(Val) other_val) {
     throw std::runtime_error("Cannot multiply boolean values");
 }
 
@@ -78,32 +78,32 @@ bool BoolVal::is_true() {
     return value;
 }
 
-Val* BoolVal::call(Val* actualArg){
+PTR(Val) BoolVal::call(PTR(Val) actualArg){
     throw runtime_error("Cannot call BoolVal");
 }
 
-FunVal::FunVal(std::string formalArgPassed, Expr *bodyPassed) {
+FunVal::FunVal(std::string formalArgPassed, PTR(Expr) bodyPassed) {
     this->formalArg = formalArgPassed;
     this->body = bodyPassed;
 }
 
-Expr *FunVal::to_expr() {
-    return new FunExpr(this->formalArg, this->body);
+PTR(Expr) FunVal::to_expr() {
+    return NEW(FunExpr)(this->formalArg, this->body);
 }
 
-bool FunVal::equals(Val *v) {
-    FunVal* funPtr = dynamic_cast<FunVal*>(v);
+bool FunVal::equals(PTR(Val) v) {
+    PTR(FunVal) funPtr = CAST(FunVal)(v);
     if (funPtr == nullptr){
         return false;
     }
     return this->formalArg == funPtr->formalArg && this->body->equals(funPtr->body);
 }
 
-Val *FunVal::add_to(Val *other_val) {
+PTR(Val) FunVal::add_to(PTR(Val) other_val) {
     throw runtime_error("can't add");
 }
 
-Val *FunVal::mult_with(Val *other_val) {
+PTR(Val) FunVal::mult_with(PTR(Val) other_val) {
     throw runtime_error("can't multiply");
 }
 
@@ -114,6 +114,6 @@ bool FunVal::is_true() {
     return false;
 }
 
-Val *FunVal::call(Val *actual_arg) {
+PTR(Val) FunVal::call(PTR(Val) actual_arg) {
     return body->subst(formalArg, actual_arg->to_expr())->interp();
 }

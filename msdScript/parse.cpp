@@ -9,6 +9,7 @@
 #include <iostream>
 #include <istream>
 #include "parse.h"
+#include "pointer.h"
 using namespace std;
 
 /**
@@ -34,18 +35,18 @@ void consume_word(istream &in, string str){
  * @param stream The input stream to parse from.
  * @return A pointer to the constructed IfExpr object.
  */
-Expr* parse_if( std::istream &stream ) {
+PTR(Expr) parse_if( std::istream &stream ) {
     skip_whitespace(stream);
-    Expr *ifStatement = parse_expr(stream);
+    PTR(Expr) ifStatement = parse_expr(stream);
     skip_whitespace(stream);
     consume_word(stream, "_then");
     skip_whitespace(stream);
-    Expr *thenStatement = parse_expr(stream);
+    PTR(Expr) thenStatement = parse_expr(stream);
     skip_whitespace(stream);
     consume_word(stream, "_else");
     skip_whitespace(stream);
-    Expr *elseStatement = parse_expr(stream);
-    return new IfExpr(ifStatement, thenStatement, elseStatement);
+    PTR(Expr) elseStatement = parse_expr(stream);
+    return NEW(IfExpr)(ifStatement, thenStatement, elseStatement);
 }
 
 /**
@@ -55,8 +56,8 @@ Expr* parse_if( std::istream &stream ) {
  * @param in The input stream to parse from.
  * @return A pointer to the constructed Expr object, representing the parsed expression.
  */
-Expr *parse_expr(std::istream &in) {
-    Expr* e = parse_comparg(in);
+PTR(Expr) parse_expr(std::istream &in) {
+    PTR(Expr) e = parse_comparg(in);
     skip_whitespace(in);
     if (in.peek() == '='){
         consume(in, '=');
@@ -64,8 +65,8 @@ Expr *parse_expr(std::istream &in) {
             throw runtime_error("need '=='!");
         }
         consume(in, '=');
-        Expr* rhs = parse_expr(in);
-        return new EqExpr(e, rhs);
+        PTR(Expr) rhs = parse_expr(in);
+        return NEW (EqExpr)(e, rhs);
     }
     return e;
 }
@@ -77,13 +78,13 @@ Expr *parse_expr(std::istream &in) {
  * @param in The input stream to parse from.
  * @return A pointer to the constructed Expr object, either the parsed expression or an addition expression.
  */
-Expr* parse_comparg(istream &in){
-    Expr *e = parse_addend(in);
+PTR(Expr) parse_comparg(istream &in){
+    PTR(Expr) e = parse_addend(in);
     skip_whitespace(in);
     if (in.peek() == '+'){
         consume(in, '+');
-        Expr *rhs = parse_comparg(in);
-        return new Add(e, rhs);
+        PTR(Expr) rhs = parse_comparg(in);
+        return NEW(Add)(e, rhs);
     }
     return e;
 }
@@ -95,8 +96,8 @@ Expr* parse_comparg(istream &in){
  * @param in The input stream to parse from.
  * @return A pointer to the constructed Expr object, either the parsed expression or a multiplication expression.
  */
-Expr *parse_addend(std::istream &in) {
-    Expr *e;
+PTR(Expr) parse_addend(std::istream &in) {
+    PTR(Expr) e;
     e = parse_multicand(in);
     skip_whitespace(in);
 
@@ -104,8 +105,8 @@ Expr *parse_addend(std::istream &in) {
     if (c == '*') {
         consume(in, '*');
         skip_whitespace(in);
-        Expr *rhs = parse_addend(in);
-        return new Mult(e, rhs);
+        PTR(Expr) rhs = parse_addend(in);
+        return NEW(Mult)(e, rhs);
     } else {
         return e;
     }
@@ -139,13 +140,13 @@ string parse_term(istream &in){
  * @param in The input stream to parse from.
  * @return A pointer to the constructed Expr object, possibly representing a function call.
  */
-Expr* parse_multicand(istream &in) {
-    Expr* e = parse_inner(in);
+PTR(Expr) parse_multicand(istream &in) {
+    PTR(Expr) e = parse_inner(in);
     while (in.peek() == '(') {
         consume(in, '(');
-        Expr* actual_arg = parse_expr(in);
+        PTR(Expr) actual_arg = parse_expr(in);
         consume(in, ')');
-        e = new CallExpr(e, actual_arg);
+        e = NEW(CallExpr)(e, actual_arg);
     }
     return e;
 }
@@ -156,7 +157,7 @@ Expr* parse_multicand(istream &in) {
  * @param in The input stream to parse from.
  * @return A pointer to the constructed Expr object, representing the parsed inner expression.
  */
-Expr *parse_inner(std::istream &in) {
+PTR(Expr) parse_inner(std::istream &in) {
     skip_whitespace(in);
     int c = in.peek();
 
@@ -166,11 +167,11 @@ Expr *parse_inner(std::istream &in) {
 
     else if (c == '(') {
         consume(in, '(');
-        Expr *e = parse_comparg(in);
+        PTR(Expr) e = parse_comparg(in);
         skip_whitespace(in);
         c = in.get();
         if (c != ')'){
-            throw runtime_error( "missing closing parentheses");
+            throw runtime_error("missing closing parentheses");
         }
         return e;
     }
@@ -191,10 +192,10 @@ Expr *parse_inner(std::istream &in) {
             return parse_if(in);
         }
         else if(term == "true"){
-            return new BoolExpr(true);
+            return NEW(BoolExpr)(true);
         }
         else if(term == "false"){
-            return new BoolExpr(false);
+            return NEW(BoolExpr)(false);
         }
         else if(term == "fun"){
             return parse_fun(in);
@@ -215,7 +216,8 @@ Expr *parse_inner(std::istream &in) {
  * @param in The input stream to parse from.
  * @return A pointer to a Num object, representing the parsed number.
  */
-Expr *parse_num(std::istream &in) {
+PTR(Expr) parse_num(std::istream &in) {
+
     int n = 0;
     bool negative = false;
     bool digitSeen = false;
@@ -240,9 +242,8 @@ Expr *parse_num(std::istream &in) {
     if (negative) {
         n = -n;
     }
-    return new Num(n);
+    return NEW(Num)(n);
 }
-
 /**
  * Consumes a specific character from the input stream. If the character does not match, throws a runtime error.
  *
@@ -296,8 +297,8 @@ void skip_whitespace(std::istream &in) {
  * @return A pointer to the parsed Expr object.
  * @throws runtime_error If there is any remaining input after parsing the expression.
  */
-Expr *parse(std::istream &in) {
-    Expr *e;
+PTR(Expr) parse(std::istream &in) {
+    PTR(Expr) e;
     e = parse_expr(in);
     skip_whitespace(in);
     if (!in.eof()) {
@@ -310,7 +311,7 @@ Expr *parse(std::istream &in) {
  * Parses an input expression from standard input and constructs its corresponding expression tree.
  * @return A pointer to the constructed Expr object, representing the parsed expression.
  */
-Expr *parseInput() {
+PTR(Expr) parseInput() {
     std::string input;
     getline(std::cin, input);
     std::cout << "input : " << input << std::endl;
@@ -325,20 +326,21 @@ Expr *parseInput() {
  * @param in The input stream to parse from.
  * @return A pointer to the constructed _Let object.
  */
-Expr *parse_let(std::istream &in){
+PTR(Expr) parse_let(std::istream &in){
     skip_whitespace(in);
-    Expr *e = parse_var(in);
+    PTR(Expr) e = parse_var(in);
     string lhs = e->to_string();
     skip_whitespace(in);
     consume(in, '=');
     skip_whitespace(in);
-    Expr *rhs = parse_comparg(in);
+    PTR(Expr) rhs = parse_comparg(in);
     skip_whitespace(in);
     consume_word(in, "_in");
     skip_whitespace(in);
-    Expr *body = parse_comparg(in);
-    return new _Let(lhs, rhs, body);
+    PTR(Expr) body = parse_comparg(in);
+    return NEW(_Let)(lhs, rhs, body);
 }
+
 
 /**
  * Parses a variable name from the input stream and creates a variable expression.
@@ -348,7 +350,7 @@ Expr *parse_let(std::istream &in){
  * @param in The input stream to parse from.
  * @return A pointer to a Var object, representing the parsed variable expression.
  */
-Expr *parse_var(std::istream &in){
+PTR(Expr)parse_var(std::istream &in){
     std::string var;
     while(true){
         int c = in.peek();
@@ -359,7 +361,7 @@ Expr *parse_var(std::istream &in){
             break;
         }
     }
-    return new Var(var);
+    return NEW(Var)(var);
 }
 
 /**
@@ -370,7 +372,7 @@ Expr *parse_var(std::istream &in){
  * @param s The string containing the expression to parse.
  * @return A pointer to an Expr object, representing the root of the parsed expression tree.
  */
-Expr *parse_str(const string& s){
+PTR(Expr) parse_str(const string& s){
     istringstream in(s);
     return parse (in);
 }
@@ -384,14 +386,13 @@ Expr *parse_str(const string& s){
  * @param in The input stream to parse from.
  * @return A pointer to a FunExpr object, representing the parsed function expression.
  */
-Expr* parse_fun(istream &in){
+PTR(Expr) parse_fun(istream &in){
     skip_whitespace(in);
     consume(in, '(');
-    Expr* e = parse_var(in);
+    PTR(Expr) e = parse_var(in);
     string var = e->to_string();
     consume(in, ')');
     skip_whitespace(in);
     e = parse_expr(in);
-    return new FunExpr(var, e);
-
+    return NEW(FunExpr)(var, e);
 }

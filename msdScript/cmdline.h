@@ -1,6 +1,7 @@
 //
 // Created by Samantha Pope on 1/19/24.
 //
+#include "pointer.h"
 
 #ifndef CS6015PROJECT_CMDLINE_H
 #define CS6015PROJECT_CMDLINE_H
