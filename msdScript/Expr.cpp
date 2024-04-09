@@ -2,6 +2,7 @@
 #include "Expr.h"
 #include "val.h"
 #include "pointer.h"
+#include "Env.h"
 
 
 /**
@@ -109,7 +110,7 @@ bool _Let::equals(PTR(Expr) e) {
  * Evaluates the numeric expression.
  * @return The integer value of the Num object.
  */
-PTR(Val) Num::interp() {
+PTR(Val) Num::interp(PTR(Env) env) {
     return NEW(NumVal)(val);
 }
 
@@ -117,22 +118,22 @@ PTR(Val) Num::interp() {
  * Evaluates the addition expression.
  * @return The sum of the left and right expressions.
  */
-PTR(Val) Add::interp() {
-    return this->lhs->interp()->add_to(this->rhs->interp());}
+PTR(Val) Add::interp(PTR(Env) env) {
+    return this->lhs->interp(env)->add_to(this->rhs->interp(env));}
 
 /**
  * Evaluates the multiplication expression.
  * @return The product of the left and right expressions.
  */
-PTR(Val) Mult::interp() {
-    return this->lhs->interp()->mult_with(this->rhs->interp());
+PTR(Val) Mult::interp(PTR(Env) env) {
+    return this->lhs->interp(env)->mult_with(this->rhs->interp(env));
 }
 
 /**
  * Evaluates the variable expression. Throws an error because variables cannot be directly evaluated.
  * @throw std::runtime_error when trying to evaluate a variable.
  */
-PTR(Val) Var::interp() {
+PTR(Val) Var::interp(PTR(Env) env) {
     throw std::runtime_error("no value for variable");
     return NEW(NumVal)(-1);
 }
@@ -141,75 +142,12 @@ PTR(Val) Var::interp() {
  * Interprets the function by passing in the value the variable is set to and solving
  * @return int that the solution equals
  */
-PTR(Val) _Let::interp() {
-    PTR(Val) rhsValue = head->interp();
-    return body->subst(varName, rhsValue->to_expr())->interp();
+PTR(Val) _Let::interp(PTR(Env) env) {
+    PTR(Val) rhsValue = head->interp(env);
+    PTR(Env) newEnv = NEW(ExtendedEnv)(varName, rhsValue, env); //TODO is this right? slide 42
+    return body->interp(newEnv);
 }
 
-
-
-
-
-
-/**
- * Substitutes a variable with another expression in a Num object.
- * @param stringInput The name of the variable to substitute.
- * @param e The expression to substitute the variable with.
- * @return A new Num object with the same value, since no substitution is needed.
- */
-PTR(Expr) Num::subst(std::string stringInput, PTR(Expr) e) {
-    return NEW(Num)(this->val);
-}
-
-/**
- * Substitutes a variable with another expression in an Add object.
- * @param stringInput The name of the variable to substitute.
- * @param e The expression to substitute the variable with.
- * @return A new Add object with the substituted expressions.
- */
-PTR(Expr) Add::subst(std::string stringInput, PTR(Expr) e) {
-    PTR(Expr) newLHS = this->lhs->subst(stringInput,e);
-    PTR(Expr) newRHS = this->rhs->subst(stringInput,e);
-    return NEW(Add)(newLHS,newRHS);
-}
-
-/**
- * Substitutes a variable with another expression in a Mult object.
- * @param stringInput The name of the variable to substitute.
- * @param e The expression to substitute the variable with.
- * @return A new Mult object with the substituted expressions.
- */
-PTR(Expr) Mult::subst(std::string stringInput, PTR(Expr) e) {
-    PTR(Expr) newLHS = this->lhs->subst(stringInput,e);
-    PTR(Expr) newRHS = this->rhs->subst(stringInput,e);
-    return NEW(Mult)(newLHS,newRHS);
-}
-
-/**
- * Substitutes a variable with another expression in a Var object.
- * @param stringInput The name of the variable to substitute.
- * @param e The expression to substitute the variable with.
- * @return A new Var object with the variable substituted if the names match, otherwise returns a copy of itself.
- */
-PTR(Expr) Var::subst(std::string stringInput, PTR(Expr) e) {
-    if (this->var == stringInput) {
-        return e;
-    } else {
-        return NEW(Var)(this->var);
-    }
-}
-
-/**
- * pass an expression in to sub
- * @param stringInput (new head for new Let object)
- * @param e (Expr)
- * @return new _Let object
- */
-PTR(Expr) _Let::subst(std::string stringInput, PTR(Expr) e) {
-    PTR(Expr) newHead = head->subst(stringInput, e);
-    PTR(Expr) newBody = (stringInput == varName) ? body : body->subst(stringInput, e);
-    return NEW(_Let)(varName, newHead, newBody);
-}
 
 /**
  * Prints the Num expression to a given output stream.
@@ -381,19 +319,11 @@ bool EqExpr::equals(PTR(Expr) e) {
     return lhs->equals(eq->lhs) && rhs->equals(eq->rhs);
 }
 
-PTR(Val) EqExpr::interp() {
-//    PTR(Val) leftVal = lhs->interp();
-//    PTR(Val) rightVal = rhs->interp();
-//    bool result = leftVal->equals(rightVal);
-//
-//    return NEW(BoolVal)(result);
-    return NEW(BoolVal)(rhs->interp()->equals(lhs->interp()));
+PTR(Val) EqExpr::interp(PTR(Env) env) {
+    return NEW(BoolVal)(rhs->interp(env)->equals(lhs->interp(env)));
 }
 
 
-PTR(Expr) EqExpr::subst(std::string stringInput, PTR(Expr) e) {
-    return NEW(EqExpr)(lhs->subst(stringInput,e), rhs->subst(stringInput, e));
-}
 
 void EqExpr::print(std::ostream &stream) {
     lhs->print(stream);
@@ -431,20 +361,17 @@ bool IfExpr::equals(PTR(Expr) e) {
            && elseExpr->equals(other->elseExpr);
 }
 
-PTR(Val) IfExpr::interp() {
-    PTR(Val) condVal = condition->interp();
+PTR(Val) IfExpr::interp(PTR(Env) env) {
+    PTR(Val) condVal = condition->interp(env);
     PTR(BoolVal) boolVal = CAST(BoolVal)(condVal);
     if (boolVal == nullptr) {
         throw std::runtime_error("Condition expression did not evaluate to a boolean");
     }
-    PTR(Val) result = boolVal->is_true() ? thenExpr->interp() : elseExpr->interp();
+    PTR(Val) result = boolVal->is_true() ? thenExpr->interp(env) : elseExpr->interp(env);
     return result;
 }
 
 
-PTR(Expr) IfExpr::subst(std::string stringInput, PTR(Expr) e) {
-    return NEW(IfExpr)(this->condition->subst(stringInput, e),this->thenExpr->subst(stringInput, e), this->elseExpr->subst(stringInput, e));
-}
 
 
 void IfExpr::print(std::ostream &stream) {
@@ -486,14 +413,11 @@ bool BoolExpr::equals(PTR(Expr) e) {
     return be != nullptr && value == be->value;
 }
 
-PTR(Val) BoolExpr::interp() {
+PTR(Val) BoolExpr::interp(PTR(Env) env) {
     return NEW(BoolVal)(value);
 }
 
 
-PTR(Expr) BoolExpr::subst(std::string stringInput, PTR(Expr) e) {
-    return NEW(BoolExpr)(value);
-}
 
 void BoolExpr::print(std::ostream &stream) {
     stream << (value ? "_true" : "_false");
@@ -522,16 +446,13 @@ bool FunExpr::equals(PTR(Expr) e) {
     return this->formalArg == funPtr->formalArg && this->body->equals(funPtr->body);
 }
 
-PTR(Val) FunExpr::interp() {
-    return NEW(FunVal)(formalArg, body);
+PTR(Val) FunExpr::interp(PTR(Env) env) {
+    if (env == nullptr){
+        env = Env::empty;
+    }
+    return NEW(FunVal)(formalArg, body, env);
 }
 
-PTR(Expr) FunExpr::subst(string str, PTR(Expr) e){
-    if (formalArg == str) {
-        return THIS;
-    } else
-        return NEW(FunExpr)(formalArg, body->subst(str, e));
-}
 
 void FunExpr::print(ostream& o){
     o << "(_fun (" << this->formalArg << ") " << this->body->to_string() << ")";
@@ -563,17 +484,15 @@ bool CallExpr::equals(PTR(Expr) e){
     }
     return this->toBeCalled->equals(callPtr->toBeCalled) && this->actualArg->equals(callPtr->actualArg);
 }
-PTR(Val) CallExpr::interp(){
-    return this->toBeCalled->interp()->call(actualArg->interp());
+PTR(Val) CallExpr::interp(PTR(Env) env){
+    return this->toBeCalled->interp(env)->call(actualArg->interp(env));
 }
-PTR(Expr) CallExpr::subst(string str, PTR(Expr) e){
-    return NEW(CallExpr)(this->toBeCalled->subst(str, e), this->actualArg->subst(str, e));
-}
+
 void CallExpr::print(ostream &ostream){
     ostream << "(" << this->toBeCalled->to_string() << ") (" << this->actualArg->to_string() << ")";
 }
 
-void CallExpr::pretty_print(std::ostream &ot, precedence_t prec, std::streampos &lastNewLinePos, bool paren) { //optional, so i did it how i want
+void CallExpr::pretty_print(std::ostream &ot, precedence_t prec, std::streampos &lastNewLinePos, bool paren) { //optional
     ot << "to be call: ";
     toBeCalled->pretty_print(ot, prec_none, lastNewLinePos, false);
     ot << "\n";

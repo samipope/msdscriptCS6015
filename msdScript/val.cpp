@@ -3,6 +3,8 @@
 //
 
 #include "val.h"
+
+#include <utility>
 #include "Expr.h"
 
 
@@ -11,9 +13,6 @@ NumVal::NumVal(int i) {
     numVal = i;
 }
 
-PTR(Expr) NumVal::to_expr() {
-    return NEW(Num)(this->numVal);
-}
 
 bool NumVal::equals(PTR(Val) v) {
     //Insert implementation
@@ -58,9 +57,7 @@ bool BoolVal::equals(PTR(Val) v) {
     return bv != nullptr && value == bv->value;
 }
 
-PTR(Expr) BoolVal::to_expr() {
-    return NEW(BoolExpr)(this->value);
-}
+
 
 PTR(Val) BoolVal::add_to(PTR(Val) other_val) {
     throw std::runtime_error("Cannot add boolean values");
@@ -82,14 +79,14 @@ PTR(Val) BoolVal::call(PTR(Val) actualArg){
     throw runtime_error("Cannot call BoolVal");
 }
 
-FunVal::FunVal(std::string formalArgPassed, PTR(Expr) bodyPassed) {
-    this->formalArg = formalArgPassed;
-    this->body = bodyPassed;
+FunVal::FunVal(std::string formalArgPassed, PTR(Expr) bodyPassed, PTR(Env) env) {
+    if(env == nullptr){
+        env = Env::empty;
+    }
+    this->formalArg = std::move(formalArgPassed);
+    this->body = std::move(bodyPassed);
 }
 
-PTR(Expr) FunVal::to_expr() {
-    return NEW(FunExpr)(this->formalArg, this->body);
-}
 
 bool FunVal::equals(PTR(Val) v) {
     PTR(FunVal) funPtr = CAST(FunVal)(v);
@@ -115,5 +112,5 @@ bool FunVal::is_true() {
 }
 
 PTR(Val) FunVal::call(PTR(Val) actual_arg) {
-    return body->subst(formalArg, actual_arg->to_expr())->interp();
+    return body->interp(NEW(ExtendedEnv)(formalArg,actual_arg,env));
 }

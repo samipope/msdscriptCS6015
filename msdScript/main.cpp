@@ -29,13 +29,13 @@ int main(int argc, const char *argv[]) {
                     std::istringstream expr_stream(line);
                     PTR(Expr) expr = parse_expr(expr_stream);
                     if (mode == do_interp) {
-                        PTR(Val) result = expr->interp(); // Interpret the expression
+                        PTR(Val) result = expr->interp(Env::empty); // Interpret the expression
                         std::string resultStr = result->to_string(); // Convert the result to a string
                         std::cout << resultStr << std::endl; // Print the result string
                     } else if (mode == do_print) {
                         expr->print(std::cout);
                         std::cout << std::endl;
-                    } else if (mode == do_pretty_print) {
+                    } else { //pretty print method
                         std::cout << expr->to_pp_string() << std::endl;
                     }
                 } else {

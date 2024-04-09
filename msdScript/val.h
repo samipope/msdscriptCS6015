@@ -11,15 +11,16 @@
 #include <string>
 #include <sstream>
 #include "pointer.h"
+#include "Env.h"
 
 using namespace std;
 class Expr;
+class Env;
 
 CLASS (Val) {
 public:
     virtual ~Val() {}
     virtual bool equals (PTR(Val) v)= 0;
-    virtual PTR(Expr) to_expr()= 0;
     virtual PTR(Val) add_to(PTR(Val) other_val) = 0;
     virtual PTR(Val) mult_with(PTR(Val) other_val) = 0;
     virtual void print(ostream &ostream) = 0;
@@ -38,7 +39,6 @@ public:
     int numVal;
     NumVal(int i);
     bool is_true() override;
-    PTR(Expr) to_expr() override;
     bool equals (PTR(Val) v) override;
     PTR(Val) add_to(PTR(Val) other_val) override;
     PTR(Val) mult_with(PTR(Val) other_val) override;
@@ -51,7 +51,6 @@ public:
     bool value;
     bool is_true() override;
     BoolVal(bool passedBool);
-    PTR(Expr) to_expr() override;
     bool equals (PTR(Val) v) override;
     PTR(Val) add_to(PTR(Val) other_val) override;
     PTR(Val) mult_with(PTR(Val) other_val) override;
@@ -64,8 +63,8 @@ class FunVal : public Val {
 public:
     string formalArg;
     PTR(Expr) body;
-    FunVal(string formalArgPassed, PTR(Expr) bodyPassed);
-    PTR(Expr) to_expr() override;
+    PTR(Env) env;
+    FunVal(std::string formalArgPassed, PTR(Expr) bodyPassed, PTR(Env) env);
     bool equals (PTR(Val) v) override;
     PTR(Val) add_to(PTR(Val) other_val) override;
     PTR(Val) mult_with(PTR(Val) other_val) override;

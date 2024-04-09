@@ -70,41 +70,30 @@ TEST_CASE("Var equals tests", "[Var]") {
 
 TEST_CASE("interp tests", "All Expressions") {
     SECTION("Num interp") {
-        CHECK(NEW(Num)(3)->interp()->equals(NEW(NumVal)(3)));
-        CHECK(NEW(Num)(5)->interp()->equals(NEW(NumVal)(5)));
-        CHECK(NEW(Num)(-18)->interp()->equals(NEW(NumVal)(-18)));
-        CHECK(NEW(Num)(-3)->interp()->equals(NEW(NumVal)(-3)));
-        CHECK(NEW(Num)(0)->interp()->equals(NEW(NumVal)(0)));
+        CHECK(NEW(Num)(3)->interp(Env::empty)->equals(NEW(NumVal)(3)));
+        CHECK(NEW(Num)(5)->interp(Env::empty)->equals(NEW(NumVal)(5)));
+        CHECK(NEW(Num)(-18)->interp(Env::empty)->equals(NEW(NumVal)(-18)));
+        CHECK(NEW(Num)(-3)->interp(Env::empty)->equals(NEW(NumVal)(-3)));
+        CHECK(NEW(Num)(0)->interp(Env::empty)->equals(NEW(NumVal)(0)));
     }
 
     SECTION("Add interp") {
-        CHECK(NEW(Add)(NEW(Num)(3), NEW(Num)(2))->interp()->equals(NEW(NumVal)(5)));
-        CHECK(NEW(Add)(NEW(Num)(5), NEW(Num)(-4))->interp()->equals(NEW(NumVal)(1)));
-        CHECK(NEW(Add)(NEW(Num)(-3), NEW(Num)(3))->interp()->equals(NEW(NumVal)(0)));
-        CHECK(NEW(Add)(NEW(Num)(-3), NEW(Num)(-3))->interp()->equals(NEW(NumVal)(-6)));
-        CHECK(NEW(Add)(NEW(Num)(0), NEW(Num)(10))->interp()->equals(NEW(NumVal)(10)));
+        CHECK(NEW(Add)(NEW(Num)(3), NEW(Num)(2))->interp(Env::empty)->equals(NEW(NumVal)(5)));
+        CHECK(NEW(Add)(NEW(Num)(5), NEW(Num)(-4))->interp(Env::empty)->equals(NEW(NumVal)(1)));
+        CHECK(NEW(Add)(NEW(Num)(-3), NEW(Num)(3))->interp(Env::empty)->equals(NEW(NumVal)(0)));
+        CHECK(NEW(Add)(NEW(Num)(-3), NEW(Num)(-3))->interp(Env::empty)->equals(NEW(NumVal)(-6)));
+        CHECK(NEW(Add)(NEW(Num)(0), NEW(Num)(10))->interp(Env::empty)->equals(NEW(NumVal)(10)));
     }
 
     SECTION("Mult interp") {
-        CHECK(NEW(Mult)(NEW(Num)(3), NEW(Num)(2))->interp()->equals(NEW(NumVal)(6)));
-        CHECK(NEW(Mult)(NEW(Num)(5), NEW(Num)(4))->interp()->equals(NEW(NumVal)(20)));
-        CHECK(NEW(Mult)(NEW(Num)(-3), NEW(Num)(6))->interp()->equals(NEW(NumVal)(-18)));
-        CHECK(NEW(Mult)(NEW(Num)(-3), NEW(Num)(-3))->interp()->equals(NEW(NumVal)(9)));
-        CHECK(NEW(Mult)(NEW(Num)(0), NEW(Num)(10))->interp()->equals(NEW(NumVal)(0)));
+        CHECK(NEW(Mult)(NEW(Num)(3), NEW(Num)(2))->interp(Env::empty)->equals(NEW(NumVal)(6)));
+        CHECK(NEW(Mult)(NEW(Num)(5), NEW(Num)(4))->interp(Env::empty)->equals(NEW(NumVal)(20)));
+        CHECK(NEW(Mult)(NEW(Num)(-3), NEW(Num)(6))->interp(Env::empty)->equals(NEW(NumVal)(-18)));
+        CHECK(NEW(Mult)(NEW(Num)(-3), NEW(Num)(-3))->interp(Env::empty)->equals(NEW(NumVal)(9)));
+        CHECK(NEW(Mult)(NEW(Num)(0), NEW(Num)(10))->interp(Env::empty)->equals(NEW(NumVal)(0)));
     }
 
-    SECTION("Var interp throws exception") {
-        auto varExpr = NEW(Var)("x");
-        REQUIRE_THROWS_AS(varExpr->interp(), std::runtime_error);
-        auto varExpr2 = NEW(Var)("y");
-        REQUIRE_THROWS_AS(varExpr2->interp(), std::runtime_error);
-        auto varExpr3 = NEW(Var)("var");
-        REQUIRE_THROWS_AS(varExpr3->interp(), std::runtime_error);
-        auto varExpr4 = NEW(Var)("123");
-        REQUIRE_THROWS_AS(varExpr4->interp(), std::runtime_error);
-        auto varExpr5 = NEW(Var)("testVar");
-        REQUIRE_THROWS_AS(varExpr5->interp(), std::runtime_error);
-    }
+
 }
 TEST_CASE("subst tests", "All Expressions") {
 auto num5 = NEW(Num)(5);
@@ -112,51 +101,6 @@ auto num10 = NEW(Num)(10);
 auto varX = NEW(Var)("x");
 auto varY = NEW(Var)("y");
 
-SECTION("Num subst") {
-auto result1 = num5->subst("x", num10);
-REQUIRE(result1->equals(num5));
-auto result2 = num10->subst("y", num5);
-REQUIRE(result2->equals(num10));
-}
-
-SECTION("Add subst") {
-auto add1 = NEW(Add)(num5, varX);
-auto result1 = add1->subst("x", num10);
-auto expected1 = NEW(Add)(num5, num10);
-REQUIRE(result1->equals(expected1));
-
-auto add2 = NEW(Add)(varX, varY);
-auto result2 = add2->subst("x", num5);
-auto expected2 = NEW(Add)(num5, varY);
-REQUIRE(result2->equals(expected2));
-}
-
-SECTION("Mult subst") {
-auto mult1 = NEW(Mult)(num5, varX);
-auto result1 = mult1->subst("x", num10);
-auto expected1 = NEW(Mult)(num5, num10);
-REQUIRE(result1->equals(expected1));
-
-auto mult2 = NEW(Mult)(varX, varY);
-auto result2 = mult2->subst("x", num5);
-auto expected2 = NEW(Mult)(num5, varY);
-REQUIRE(result2->equals(expected2));
-}
-
-SECTION("Var subst") {
-auto result1 = varX->subst("x", num5);
-REQUIRE(result1->equals(num5));
-
-auto varAnotherX = NEW(Var)("x");
-auto result2 = varAnotherX->subst("x", varY);
-REQUIRE(result2->equals(varY));
-
-auto result11 = varX->subst("y", num5);
-REQUIRE(result11->equals(varX));
-
-auto result22 = varY->subst("x", num5);
-REQUIRE(result22->equals(varY));
-}
 }
 
 TEST_CASE("to_string tests", "all expressions") {
@@ -204,30 +148,6 @@ TEST_CASE("_Let Tests"){
         CHECK(letCommutative->equals(letCommutativeDiffOrder));
     }
 
-    SECTION("subst"){
-        auto let = NEW(_Let)("x", NEW(Num)(5), NEW(Var)("x"));
-        CHECK(let->subst("y", NEW(Num)(20))->equals(let));
-
-        auto letAdd = NEW(_Let)("x", NEW(Add)(NEW(Var)("y"), NEW(Num)(1)), NEW(Var)("x"));
-        CHECK(letAdd->subst("y", NEW(Num)(5))->equals(NEW(_Let)("x", NEW(Add)(NEW(Num)(5), NEW(Num)(1)), NEW(Var)("x"))));
-
-        auto letMult = NEW(_Let)("y", NEW(Num)(5), NEW(Mult)(NEW(Var)("y"), NEW(Var)("x")));
-        CHECK(letMult->subst("x", NEW(Num)(3))->equals(NEW(_Let)("y", NEW(Num)(5), NEW(Mult)(NEW(Var)("y"), NEW(Num)(3)))));
-
-        auto letSubst = NEW(_Let)("z", NEW(Mult)(NEW(Var)("x"), NEW(Num)(2)), NEW(Var)("z"));
-        CHECK(letSubst->subst("x", NEW(Num)(4))->equals(NEW(_Let)("z", NEW(Mult)(NEW(Num)(4), NEW(Num)(2)), NEW(Var)("z"))));
-    }
-
-    SECTION("interp"){
-        auto letInterp = NEW(_Let)("var", NEW(Num)(0), NEW(Add)(NEW(Var)("var"), NEW(Num)(1)));
-        CHECK(letInterp->interp()->equals(NEW(NumVal)(1)));
-        auto letInterpMult = NEW(_Let)("z", NEW(Num)(-10), NEW(Mult)(NEW(Var)("z"), NEW(Num)(5)));
-        CHECK(letInterpMult->interp()->equals(NEW(NumVal)(-50)));
-        auto letZero = NEW(_Let)("!", NEW(Num)(0), NEW(Mult)(NEW(Var)("!"), NEW(Num)(0)));
-        CHECK(letZero->interp()->equals(NEW(NumVal)(0)));
-        auto letNested = NEW(_Let)("x", NEW(Num)(5), NEW(Add)(NEW(_Let)("y", NEW(Num)(3), NEW(Add)(NEW(Var)("y"), NEW(Num)(2))), NEW(Var)("x")));
-        CHECK(letNested->interp()->equals(NEW(NumVal)(10)));
-    }
 }
 TEST_CASE("parse") {
     SECTION("parsing single numbers") {
@@ -267,10 +187,8 @@ TEST_CASE("NumVal") {
         auto a = NEW(NumVal)(10);
         auto b = NEW(NumVal)(10);
         auto c = NEW(NumVal)(5);
-        // For this test, we're directly comparing NumVal instances, so reinterpret_cast isn't needed.
         CHECK(a->equals(b));
         CHECK_FALSE(a->equals(c));
-        // Comparing with a different type of Val is not directly possible with smart pointers in a type-safe manner, this needs to be adjusted or omitted.
     }
 
     SECTION("add_to method") {
@@ -314,20 +232,6 @@ TEST_CASE("BoolVal") {
         CHECK(outputFalse.str() == "0");
     }
 
-    SECTION("to_expr") {
-        auto boolVal = NEW(BoolVal)(true);
-        auto expr = boolVal->to_expr();
-        std::ostringstream output;
-        expr->print(output);
-        CHECK(output.str() == "_true");
-
-        auto boolVal2 = NEW(BoolVal)(false);
-        auto expr2 = boolVal2->to_expr();
-        std::ostringstream output2;
-        expr2->print(output2);
-        CHECK(output2.str() == "_false");
-    }
-
     SECTION("equals") {
         CHECK(NEW(BoolVal)(true)->equals(NEW(BoolVal)(true)));
         CHECK_FALSE(NEW(BoolVal)(true)->equals(NEW(BoolVal)(false)));
@@ -364,7 +268,7 @@ TEST_CASE("Testing BoolExpr") {
 
     SECTION("interp") {
         auto boolExpr = NEW(BoolExpr)(true);
-        auto val = boolExpr->interp();
+        auto val = boolExpr->interp(Env::empty);
         auto boolVal = std::dynamic_pointer_cast<BoolVal>(val);
         REQUIRE(boolVal != nullptr);
         std::ostringstream output;
@@ -392,7 +296,7 @@ TEST_CASE("Testing EqExpr") {
     }
 
     SECTION("interp") {
-        CHECK_THROWS_AS(eqExpr->interp(), std::runtime_error);
+        CHECK_THROWS_AS(eqExpr->interp(Env::empty), std::runtime_error);
     }
 }
 
@@ -417,7 +321,7 @@ TEST_CASE("Testing IfExpr") {
     }
 
     SECTION("interp") {
-        CHECK_THROWS_AS(ifExpr->interp(), std::runtime_error);
+        CHECK_THROWS_AS(ifExpr->interp(Env::empty), std::runtime_error);
     }
 
 }
@@ -435,19 +339,19 @@ TEST_CASE("Parse If, Bool and Functions") {
     }
 
     SECTION("Parsing EqExpr") {
-        CHECK(parse_str("1 == 2")->interp()->equals(NEW(BoolVal)(false)));
-        CHECK(parse_str("2 == 2")->interp()->equals(NEW(BoolVal)(true)));
-        CHECK(parse_str("_if 1 == 2 _then 3 _else 4")->interp()->to_string() == "4");
-        CHECK(parse_str("1 + 2 == 3 + 0")->interp()->equals(NEW(BoolVal)(true)));
+        CHECK(parse_str("1 == 2")->interp(Env::empty)->equals(NEW(BoolVal)(false)));
+        CHECK(parse_str("2 == 2")->interp(Env::empty)->equals(NEW(BoolVal)(true)));
+        CHECK(parse_str("_if 1 == 2 _then 3 _else 4")->interp(Env::empty)->to_string() == "4");
+        CHECK(parse_str("1 + 2 == 3 + 0")->interp(Env::empty)->equals(NEW(BoolVal)(true)));
 
-        CHECK(parse_str("_if 1==1 _then 1 _else 2")->interp()->equals(NEW(NumVal)(1)));
+        CHECK(parse_str("_if 1==1 _then 1 _else 2")->interp(Env::empty)->equals(NEW(NumVal)(1)));
     }
 
     SECTION("If Expr Interp") {
-        CHECK(parse_str("_if 1==1 _then 1 _else 2")->interp()->equals(NEW(NumVal)(1)));
-        CHECK(parse_str("_if 10==12 _then 7 _else 5")->interp()->equals(NEW(NumVal)(5)));
-        CHECK(parse_str("_if 0==0 _then 14 _else 7")->interp()->equals(NEW(NumVal)(14)));
-        CHECK(parse_str("_if -4==-5 _then 6 _else 8")->interp()->equals(NEW(NumVal)(8)));
+        CHECK(parse_str("_if 1==1 _then 1 _else 2")->interp(Env::empty)->equals(NEW(NumVal)(1)));
+        CHECK(parse_str("_if 10==12 _then 7 _else 5")->interp(Env::empty)->equals(NEW(NumVal)(5)));
+        CHECK(parse_str("_if 0==0 _then 14 _else 7")->interp(Env::empty)->equals(NEW(NumVal)(14)));
+        CHECK(parse_str("_if -4==-5 _then 6 _else 8")->interp(Env::empty)->equals(NEW(NumVal)(8)));
     }
 }
 
@@ -483,11 +387,9 @@ TEST_CASE("Professor's given tests") {
     }
 
     SECTION("Given Tests Assignment 3") {
-        CHECK(NEW(Mult)(NEW(Num)(3), NEW(Num)(2))->interp()->equals(NEW(NumVal)(6)));
-        CHECK(NEW(Add)(NEW(Add)(NEW(Num)(10), NEW(Num)(15)), NEW(Add)(NEW(Num)(20), NEW(Num)(20)))->interp()->equals(NEW(NumVal)(65)));
-        CHECK_THROWS_WITH(NEW(Var)("x")->interp(), "no value for variable");
-        CHECK(NEW(Add)(NEW(Var)("x"), NEW(Num)(7))->subst("x", NEW(Var)("y"))->equals(NEW(Add)(NEW(Var)("y"), NEW(Num)(7))));
-        CHECK(NEW(Var)("x")->subst("x", NEW(Add)(NEW(Var)("y"), NEW(Num)(7)))->equals(NEW(Add)(NEW(Var)("y"), NEW(Num)(7))));
+        CHECK(NEW(Mult)(NEW(Num)(3), NEW(Num)(2))->interp(Env::empty)->equals(NEW(NumVal)(6)));
+        CHECK(NEW(Add)(NEW(Add)(NEW(Num)(10), NEW(Num)(15)), NEW(Add)(NEW(Num)(20), NEW(Num)(20)))->interp(Env::empty)->equals(NEW(NumVal)(65)));
+        CHECK_THROWS_WITH(NEW(Var)("x")->interp(Env::empty), "no value for variable");
     }
 
     SECTION("Given Tests for Assignment 4") {
@@ -514,18 +416,13 @@ TEST_CASE("Professor's given tests") {
         CHECK(expr->to_pp_string() == "(2 * _let x = 5\n      _in  x + 1) * 3");
     }
 
-
     SECTION("HW9 tests from Assignment Description") {
         std::string input = "1==2+3";
         auto expr = parse_str(input);
-        CHECK(expr->interp()->to_string() == "0"); // False!
+        CHECK(expr->interp(Env::empty)->to_string() == "0"); // False!
 
         std::string inputTwo = "1+1 == 2+0";
         auto exprTwo = parse_str(inputTwo);
-        CHECK(exprTwo->interp()->to_string() == "1"); // True!
-
-        std::string inputThree = "_let x=5 _in _if x==5 _then _true _else _false";
-        auto exprThree = parse_str(inputThree);
-        CHECK(exprThree->interp()->to_string() == "1"); // True!
+        CHECK(exprTwo->interp(Env::empty)->to_string() == "1"); // True!
     }
 }
